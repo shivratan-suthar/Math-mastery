@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Mastery</title>
-<link rel="icon" href="icon.svg" type="image/x-icon">
+    <link rel="icon" href="icon.svg" type="image/x-icon">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -110,38 +110,69 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
+        /* --- NEW MODAL STYLES --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: #34495e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 2px solid #1abc9c;
+            width: 300px;
+            animation: scaleUp 0.3s;
+        }
+
+        .modal-content h3 {
+            color: #ecf0f1;
+            margin-top: 0;
+        }
+
+        .modal-btn-yes {
+            background-color: #e74c3c;
+        }
+        
+        .modal-btn-no {
+            background-color: #16a085;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.8); }
+            to { transform: scale(1); }
+        }
+
         @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
     </style>
@@ -177,14 +208,34 @@
             <button class="go-back-button" onclick="goBack()">Go Back</button>
         </div>
     </div>
- <footer>
-    <p>Created with passion by Shiv</p>
-    <p>Sharpen Your Skills with Ease</p>
-    <p><a href="mailto:mintshiv1@gmail.com">Contact Us</a></p>
-</footer>
 
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <h3>Are you sure?</h3>
+            <p>Your progress will be lost.</p>
+            <button class="modal-btn-yes" onclick="confirmExit()">Yes, Exit</button>
+            <button class="modal-btn-no" onclick="closeModal()">No, Cancel</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Created with passion by Shiv</p>
+        <p>Sharpen Your Skills with Ease</p>
+        <p><a href="mailto:mintshiv1@gmail.com">Contact Us</a></p>
+    </footer>
 
     <script>
+        // --- AUDIO SETUP ---
+        const clickSound = new Audio('Click.mp3');
+        const overSound = new Audio('Over.mp3');
+        const successSound = new Audio('Success.mp3');
+        const wrongSound = new Audio('Wrong.mp3');
+
+        function playClick() {
+            clickSound.currentTime = 0;
+            clickSound.play();
+        }
+
         let selectedGame;
         let settings = {};
         let questions = [];
@@ -198,21 +249,39 @@
         let lastQuestionIndex = -1;
         let realCorrect = 0;
 
+        // --- NEW MODAL FUNCTIONS ---
+
         function goBack() {
-            if (confirm("Are you sure you want to exit?")) {
-                document.getElementById('game-selection').style.display = 'block';
-                document.getElementById('game-settings').style.display = 'none';
-                document.getElementById('game-area').style.display = 'none';
-                document.getElementById('game-over').style.display = 'none';
-                selectedGame = null;
-                settings = {};
-                questions = [];
-                answers = [];
-                score = 0;
-            }
+            playClick(); 
+            // Show the modal instead of browser alert
+            document.getElementById('confirmation-modal').style.display = 'flex';
         }
 
+        function closeModal() {
+            playClick();
+            document.getElementById('confirmation-modal').style.display = 'none';
+        }
+
+        function confirmExit() {
+            playClick();
+            document.getElementById('confirmation-modal').style.display = 'none';
+            
+            // Original Reset Logic
+            document.getElementById('game-selection').style.display = 'block';
+            document.getElementById('game-settings').style.display = 'none';
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('game-over').style.display = 'none';
+            selectedGame = null;
+            settings = {};
+            questions = [];
+            answers = [];
+            score = 0;
+        }
+
+        // --- END MODAL FUNCTIONS ---
+
         function startGame(gameType) {
+            playClick();
             selectedGame = gameType;
             document.getElementById('game-selection').style.display = 'none';
             document.getElementById('game-settings').style.display = 'block';
@@ -263,11 +332,11 @@
                 case 'table':
                     countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
                     let tableRange = `<label>Table Ranges: <br>
-                                        <input type="checkbox" id="tableRange1" name="tableRange" value="10"><label for="tableRange1">1-10</label><br>
-                                        <input type="checkbox" id="tableRange2" name="tableRange" value="20"><label for="tableRange2">11-20</label><br>
-                                        <input type="checkbox" id="tableRange3" name="tableRange" value="30"><label for="tableRange3">21-30</label><br>
-                                        <input type="checkbox" id="tableRange4" name="tableRange" value="40"><label for="tableRange4">31-40</label><br>
-                                        <input type="checkbox" id="tableRange5" name="tableRange" value="50"><label for="tableRange5">41-50</label><br>
+                                            <input type="checkbox" id="tableRange1" name="tableRange" value="10"><label for="tableRange1">1-10</label><br>
+                                            <input type="checkbox" id="tableRange2" name="tableRange" value="20"><label for="tableRange2">11-20</label><br>
+                                            <input type="checkbox" id="tableRange3" name="tableRange" value="30"><label for="tableRange3">21-30</label><br>
+                                            <input type="checkbox" id="tableRange4" name="tableRange" value="40"><label for="tableRange4">31-40</label><br>
+                                            <input type="checkbox" id="tableRange5" name="tableRange" value="50"><label for="tableRange5">41-50</label><br>
                                     </label><br>`;
                     settingsDiv.innerHTML = tableRange + countInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
                     break;
@@ -275,36 +344,37 @@
         }
 
        function startActualGame() {
+           playClick();
            currentQuestionIndex = 0;
-    if (selectedGame === 'table') {
-        const checkedRanges = Array.from(document.querySelectorAll('input[name="tableRange"]:checked'));
-        if (checkedRanges.length === 0) {
-            alert("Please select at least one table range to continue.");
-            return;
+            if (selectedGame === 'table') {
+                const checkedRanges = Array.from(document.querySelectorAll('input[name="tableRange"]:checked'));
+                if (checkedRanges.length === 0) {
+                    alert("Please select at least one table range to continue.");
+                    return;
+                }
+                settings.tableRanges = checkedRanges.map(el => parseInt(el.value));
+            } else {
+                settings.rangeMin = parseInt(document.getElementById('rangeMin').value);
+                settings.rangeMax = parseInt(document.getElementById('rangeMax').value);
+            }
+            settings.count = parseInt(document.getElementById('count').value);
+            if (selectedGame === 'addition') {
+                settings.quantity = parseInt(document.getElementById('quantity').value);
+            }
+            if (selectedGame === 'square') {
+                settings.power = parseInt(document.getElementById('power').value);
+            }
+            if(selectedGame === 'percentage'){
+                settings.percentageComplexity = document.getElementById('percentageComplexity').value;
+            }
+
+            document.getElementById('game-settings').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+
+            generateQuestions();
+            displayQuestion();
+            startTime = new Date();
         }
-        settings.tableRanges = checkedRanges.map(el => parseInt(el.value));
-    } else {
-        settings.rangeMin = parseInt(document.getElementById('rangeMin').value);
-        settings.rangeMax = parseInt(document.getElementById('rangeMax').value);
-    }
-    settings.count = parseInt(document.getElementById('count').value);
-    if (selectedGame === 'addition') {
-        settings.quantity = parseInt(document.getElementById('quantity').value);
-    }
-    if (selectedGame === 'square') {
-        settings.power = parseInt(document.getElementById('power').value);
-    }
-    if(selectedGame === 'percentage'){
-        settings.percentageComplexity = document.getElementById('percentageComplexity').value;
-    }
-
-    document.getElementById('game-settings').style.display = 'none';
-    document.getElementById('game-area').style.display = 'block';
-
-    generateQuestions();
-    displayQuestion();
-    startTime = new Date();
-}
           
 
         function generateQuestions() {
@@ -415,6 +485,8 @@
         function checkAnswer() {
             let userAnswer = parseFloat(document.getElementById('answer').value);
             if (userAnswer === answers[currentQuestionIndex]) {
+                successSound.currentTime = 0; 
+                successSound.play();
                 document.getElementById('result').textContent = 'Correct!';
                 document.getElementById('result').style.color = "green";
                 score++;
@@ -429,6 +501,8 @@
                     endGame();
                 }
             } else if (!isNaN(userAnswer) && userAnswer > answers[currentQuestionIndex]) {
+                wrongSound.currentTime = 0;
+                wrongSound.play();
                 document.getElementById('result').textContent = 'Incorrect!';
                 document.getElementById('result').style.color = "red";
                 if (currentQuestionIndex != lastQuestionIndex) {
@@ -443,18 +517,18 @@
         }
 
        function endGame() {
+            overSound.currentTime = 0;
+            overSound.play();
             endTime = new Date();
             currentQuestionIndex = 0;
             let timeDiff = (endTime - startTime) / 1000;
             let accuracy = (realCorrect / questions.length) * 100;
-	    let average=timeDiff/questions.length;
+            let average=timeDiff/questions.length;
             document.getElementById('game-area').style.display = 'none';
             document.getElementById('game-over').style.display = 'block';
             document.getElementById('final-score').textContent = `Your Score: ${realCorrect} / ${questions.length}`;
             document.getElementById('time-taken').textContent = `Time Taken: ${(timeDiff / 60).toFixed(0)} minutes ${(timeDiff % 60).toFixed(0)} sec`;
-
-	 document.getElementById('average').textContent = `Average Time: ${average.toFixed(2)}sec `;
-  
+            document.getElementById('average').textContent = `Average Time: ${average.toFixed(2)}sec `;
             document.getElementById('accuracy').textContent = `Accuracy: ${accuracy.toFixed(2)}% `;
         }
     </script>
