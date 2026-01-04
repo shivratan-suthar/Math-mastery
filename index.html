@@ -110,16 +110,16 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* --- NEW MODAL STYLES --- */
+        /* --- MODAL STYLES --- */
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed; 
             z-index: 1000; 
             left: 0;
             top: 0;
             width: 100%; 
             height: 100%; 
-            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+            background-color: rgba(0, 0, 0, 0.7);
             justify-content: center;
             align-items: center;
             animation: fadeIn 0.3s;
@@ -132,13 +132,17 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             text-align: center;
             border: 2px solid #1abc9c;
-            width: 300px;
+            width: 350px;
             animation: scaleUp 0.3s;
         }
 
         .modal-content h3 {
             color: #ecf0f1;
             margin-top: 0;
+        }
+
+        .modal-content p {
+            font-size: 18px;
         }
 
         .modal-btn-yes {
@@ -209,12 +213,19 @@
         </div>
     </div>
 
-    <div id="confirmation-modal" class="modal">
+    <div id="custom-modal" class="modal">
         <div class="modal-content">
-            <h3>Are you sure?</h3>
+            <h3 id="modal-title">Title</h3>
+            <p id="modal-message">Message</p>
             
-            <button class="modal-btn-yes" onclick="confirmExit()">Yes, Exit</button>
-            <button class="modal-btn-no" onclick="closeModal()">No, Cancel</button>
+            <div id="modal-confirm-btns" style="display: none;">
+                <button class="modal-btn-yes" onclick="confirmExit()">Yes, Exit</button>
+                <button class="modal-btn-no" onclick="closeModal()">No, Cancel</button>
+            </div>
+
+            <div id="modal-alert-btns" style="display: none;">
+                 <button class="modal-btn-no" onclick="closeModal()">OK</button>
+            </div>
         </div>
     </div>
 
@@ -242,31 +253,43 @@
         let answers = [];
         let currentQuestionIndex = 0;
         let score = 0;
-        let incorrectCounts = [];
         let startTime;
         let endTime;
-        let check_inp_try = 0;
         let lastQuestionIndex = -1;
         let realCorrect = 0;
 
-        // --- NEW MODAL FUNCTIONS ---
+        // --- DYNAMIC MODAL FUNCTIONS ---
+        function showModal(type, title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            
+            const confirmBtns = document.getElementById('modal-confirm-btns');
+            const alertBtns = document.getElementById('modal-alert-btns');
+
+            if (type === 'confirm') {
+                confirmBtns.style.display = 'block';
+                alertBtns.style.display = 'none';
+            } else {
+                confirmBtns.style.display = 'none';
+                alertBtns.style.display = 'block';
+            }
+            document.getElementById('custom-modal').style.display = 'flex';
+        }
 
         function goBack() {
             playClick(); 
-            // Show the modal instead of browser alert
-            document.getElementById('confirmation-modal').style.display = 'flex';
+            showModal('confirm', 'Are you sure?');
         }
 
         function closeModal() {
             playClick();
-            document.getElementById('confirmation-modal').style.display = 'none';
+            document.getElementById('custom-modal').style.display = 'none';
         }
 
         function confirmExit() {
             playClick();
-            document.getElementById('confirmation-modal').style.display = 'none';
+            document.getElementById('custom-modal').style.display = 'none';
             
-            // Original Reset Logic
             document.getElementById('game-selection').style.display = 'block';
             document.getElementById('game-settings').style.display = 'none';
             document.getElementById('game-area').style.display = 'none';
@@ -277,8 +300,6 @@
             answers = [];
             score = 0;
         }
-
-        // --- END MODAL FUNCTIONS ---
 
         function startGame(gameType) {
             playClick();
@@ -291,40 +312,39 @@
         function generateSettingsInputs() {
             let settingsDiv = document.getElementById('game-settings');
             settingsDiv.innerHTML = '';
-
-            let rangeMinInput, rangeMaxInput, countInput, tableInput, percentageInput, quantityInput, powerInput;
+            let rangeMinInput, rangeMaxInput, countInput, quantityInput, powerInput, percentageInput;
 
             switch (selectedGame) {
                 case 'addition':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="1"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="10"></label><br>`;
+                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="2"></label><br>`;
+                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="20"></label><br>`;
                     countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
                     quantityInput = `<label>Quantity of Numbers: <input type="number" id="quantity" value="2"></label><br>`;
                     settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + quantityInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
                     break;
                 case 'subtraction':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="100"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="200"></label><br>`;
+                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="10"></label><br>`;
+                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="100"></label><br>`;
                     countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
                     settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
                     break;
                 case 'multiplication':
                 case 'division':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="1"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="10"></label><br>`;
+                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="2"></label><br>`;
+                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="12"></label><br>`;
                     countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
                     settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
                     break;
                 case 'square':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="1"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="10"></label><br>`;
+                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="2"></label><br>`;
+                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="20"></label><br>`;
                     countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
                     powerInput = `<label>Power : <select id="power"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label><br>`;
                     settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + powerInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
                     break;
                 case 'percentage':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="1"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="100"></label><br>`;
+                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="10"></label><br>`;
+                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="200"></label><br>`;
                     countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
                     percentageInput = `<label>Percentage Complexity: <select id="percentageComplexity"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option><option value="expert">Expert</option></select></label><br>`;
                     settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + percentageInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
@@ -344,12 +364,26 @@
         }
 
        function startActualGame() {
+           // Validation
+           let inputs = document.querySelectorAll('#game-settings input[type="number"]');
+           for(let input of inputs) {
+               let val = parseInt(input.value);
+               if (isNaN(val) || val <= 0) {
+                   wrongSound.currentTime = 0;
+                   wrongSound.play();
+                   showModal('alert', 'Invalid Input', 'Please enter a correct value (greater than 0).');
+                   return;
+               }
+           }
+
            playClick();
            currentQuestionIndex = 0;
             if (selectedGame === 'table') {
                 const checkedRanges = Array.from(document.querySelectorAll('input[name="tableRange"]:checked'));
                 if (checkedRanges.length === 0) {
-                    alert("Please select at least one table range to continue.");
+                    wrongSound.currentTime = 0;
+                    wrongSound.play();
+                    showModal('alert', 'Selection Required', 'Please select at least one table range.');
                     return;
                 }
                 settings.tableRanges = checkedRanges.map(el => parseInt(el.value));
@@ -376,6 +410,17 @@
             startTime = new Date();
         }
           
+        // Helper to avoid 0, 1, 10 if possible
+        function getNonTrivialNumber(min, max) {
+            let num;
+            let attempts = 0;
+            do {
+                num = Math.floor(Math.random() * (max - min + 1)) + min;
+                attempts++;
+                // Stop trying if we have tried too many times (prevents infinite loop on small ranges)
+            } while ((num === 0 || num === 1 || num === 10) && attempts < 20);
+            return num;
+        }
 
         function generateQuestions() {
             questions = [];
@@ -390,7 +435,11 @@
                         let questionString = "";
                         result = 0;
                         for (let j = 0; j < settings.quantity; j++) {
-                            let num = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
+                            // Try to avoid 0 in addition
+                            let num = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
+                            // Relax the rule for addition (allow 1 or 10, just avoid 0 ideally)
+                            if (num === 0 && settings.rangeMax > 0) num = 1;
+                            
                             nums.push(num);
                             result += num;
                             questionString += num;
@@ -402,29 +451,41 @@
                         answers.push(result);
                         break;
                     case 'subtraction':
-                        num1 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                        num2 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                        if (num2 > num1) [num1, num2] = [num2, num1];
+                        // Ensure no negative result, no subtracting 0, no result 0
+                        let subAttempts = 0;
+                        do {
+                            num1 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
+                            num2 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
+                            if (num2 > num1) [num1, num2] = [num2, num1];
+                            subAttempts++;
+                        } while ((num2 === 0 || num1 === num2) && subAttempts < 20);
+
                         result = num1 - num2;
                         questions.push(`${num1} - ${num2} = ?`);
                         answers.push(result);
                         break;
                     case 'multiplication':
-                        num1 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                        num2 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
+                        // Avoid 0, 1, 10
+                        num1 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
+                        num2 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
                         result = num1 * num2;
                         questions.push(`${num1} * ${num2} = ?`);
                         answers.push(result);
                         break;
                     case 'division':
-                        num2 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                        result = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                        num1 = num2 * result;
+                        // Avoid dividing by 1 or 10
+                        num2 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
+                        // Ensure operand isn't 0
+                        if (num2 === 0) num2 = 2; 
+
+                        let multiplier = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
+                        num1 = num2 * multiplier;
+                        
                         questions.push(`${num1} / ${num2} = ?`);
-                        answers.push(result);
+                        answers.push(multiplier);
                         break;
                     case 'square':
-                        num1 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
+                        num1 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
                         num2 = Math.floor(Math.random() * 30) + 1;
                         result = Math.pow(num1, settings.power) + num2;
                         questions.push(`${num1}^${settings.power} + ${num2} = ?`);
@@ -434,22 +495,25 @@
                         let percentage;
                         switch (settings.percentageComplexity) {
                             case 'easy':
-                                percentage = Math.floor(Math.random() * 20) * 5;
+                                percentage = Math.floor(Math.random() * 19) + 1; // 1 to 19
+                                percentage = percentage * 5; // 5, 10, ... 95
                                 break;
                             case 'medium':
-                                percentage = Math.floor(Math.random() * 95) + 1;
+                                percentage = Math.floor(Math.random() * 95) + 2; 
+                                // filter out multiples of 5 to make it "Medium" not Easy
                                 while (percentage % 5 === 0) {
-                                    percentage = Math.floor(Math.random() * 95) + 1;
+                                    percentage = Math.floor(Math.random() * 95) + 2;
                                 }
                                 break;
                             case 'hard':
-                                percentage = (Math.random() * 99 + 1).toFixed(1);
+                                percentage = (Math.random() * 98 + 1).toFixed(1);
                                 break;
                             case 'expert':
-                                percentage = (Math.random() * 99 + 1).toFixed(2);
+                                percentage = (Math.random() * 98 + 1).toFixed(2);
                                 break;
                         }
                         let total = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
+                        if(total === 0) total = 100;
                         result = (percentage / 100) * total;
                         questions.push(`${percentage}% of ${total} = ?`);
                         answers.push(parseFloat(result.toFixed(2)));
@@ -466,7 +530,10 @@
                                 case 50: rangeStart = 41; rangeEnd = 50; break;
                             }
                             settings.tableNum = Math.floor(Math.random() * (rangeEnd - rangeStart + 1)) + rangeStart;
-                            num2 = Math.floor(Math.random() * 10) + 1;
+                            
+                            // For tables, multiply by 2 to 9 (Avoid 1 and 10)
+                            num2 = Math.floor(Math.random() * 8) + 2; 
+                            
                             result = settings.tableNum * num2;
                             questions.push(`${settings.tableNum} x ${num2} = ?`);
                             answers.push(result);
