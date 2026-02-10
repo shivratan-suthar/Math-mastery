@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Mastery</title>
-    <link rel="icon" href="icon.svg" type="image/x-icon">
+    <title>Math Mastery Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -15,7 +15,6 @@
             margin: 0;
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: #ecf0f1;
-            transition: background 0.5s ease;
         }
 
         header {
@@ -23,581 +22,776 @@
             padding: 25px;
             width: 90%;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             border-radius: 12px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            animation: fadeInDown 1s ease-out;
         }
 
-        h1 {
-            font-size: 36px;
-            color: #1abc9c;
-            margin: 0;
-        }
+        h1 { font-size: 36px; color: #1abc9c; margin: 0; }
 
         #game-container {
             text-align: center;
-            background-color: rgba(52, 152, 219, 0.85);
+            background-color: rgba(52, 152, 219, 0.85); /* Blue Box */
             padding: 40px;
             border-radius: 18px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             width: 85%;
-            max-width: 700px;
-            animation: fadeInUp 1s ease-out;
+            max-width: 800px;
+            margin-bottom: 40px;
         }
 
+        /* Buttons */
         button {
             padding: 14px 30px;
-            margin: 12px;
+            margin: 10px;
             font-size: 18px;
             background: linear-gradient(135deg, #16a085, #1abc9c);
             color: #fff;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        button:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); }
 
-        button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        .play-again-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            font-size: 24px;
+            font-weight: bold;
+            padding: 15px 50px;
+            display: block;
+            margin: 20px auto 10px auto;
+            width: 80%;
+            animation: pulse 2s infinite;
         }
 
-        input[type="number"] {
-            padding: 12px;
+        .main-menu-btn {
+            background: #e74c3c;
             font-size: 18px;
+            display: block;
+            margin: 10px auto 30px auto;
+            width: 60%;
+        }
+        .main-menu-btn:hover { background: #c0392b; }
+
+        .history-btn {
+            background: #8e44ad; /* Purple for History */
+            width: 80%;
+            display: block;
+            margin: 20px auto;
+        }
+        .history-btn:hover { background: #9b59b6; }
+
+        /* Inputs */
+        input[type="number"], input[type="text"] {
+            padding: 12px;
+            font-size: 28px;
             margin: 15px;
-            border: 1px solid #bdc3c7;
+            border: 2px solid #bdc3c7;
             border-radius: 8px;
-            width: 90px;
+            width: 150px;
             text-align: center;
             background-color: #34495e;
             color: #ecf0f1;
-        }
-
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            color: #95a5a6;
-            padding: 20px;
-            width: 100%;
-            background-color: rgba(44, 62, 80, 0.85);
-            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
-            animation: fadeInUp 1s ease-out;
-        }
-
-        #result {
-            margin-top: 10px;
             font-weight: bold;
-            font-size: 18px;
-            color: #1abc9c;
         }
+        input:focus { border-color: #1abc9c; outline: none; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        .go-back-button {
-            background-color: #e74c3c;
-            color: white;
-            animation: pulse 2s infinite;
-            padding: 12px 30px;
+        /* Checkbox Style */
+        .chk-container {
+            display: inline-block;
+            background: rgba(0,0,0,0.1);
+            padding: 10px 20px;
             border-radius: 8px;
-            font-size: 18px;
-            margin-top: 15px;
+            margin: 10px;
             cursor: pointer;
         }
+        .chk-container:hover { background: rgba(0,0,0,0.2); }
+        .chk-container input { width: 20px; height: 20px; vertical-align: middle; margin-right: 10px; }
+        .chk-container span { vertical-align: middle; font-size: 18px; font-weight: bold; }
 
-        .go-back-button:hover {
-            background-color: #c0392b;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
+        /* Game Area */
+        #step-indicator { font-size: 24px; color: #f1c40f; font-weight: bold; margin-bottom: 5px; height: 30px; }
+        #question { font-size: 48px; font-weight: bold; margin: 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        #result { height: 30px; font-size: 22px; font-weight: bold; margin-top: 10px; }
 
-        /* --- MODAL STYLES --- */
-        .modal {
-            display: none;
-            position: fixed; 
-            z-index: 1000; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s;
-        }
+        /* Stats & Tabs */
+        .stats-row { display: flex; justify-content: space-around; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
+        .stat-box h3 { margin: 0; font-size: 14px; color: #bdc3c7; }
+        .stat-box p { margin: 5px 0 0 0; font-size: 22px; font-weight: bold; color: #fff; }
 
-        .modal-content {
-            background-color: #34495e;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            text-align: center;
-            border: 2px solid #1abc9c;
-            width: 350px;
-            animation: scaleUp 0.3s;
+        .tab-container { display: flex; justify-content: center; margin-bottom: 0; flex-wrap: wrap; }
+        .tab-btn {
+            background: transparent; margin: 0 2px; border-radius: 10px 10px 0 0;
+            border: 1px solid rgba(255,255,255,0.1); border-bottom: none; color: #bdc3c7;
+            padding: 10px 15px; font-size: 16px; box-shadow: none;
         }
-
-        .modal-content h3 {
-            color: #ecf0f1;
-            margin-top: 0;
-        }
-
-        .modal-content p {
-            font-size: 18px;
-        }
-
-        .modal-btn-yes {
-            background-color: #e74c3c;
-        }
+        .tab-btn.active { background: rgba(255,255,255,0.1); color: #1abc9c; border-color: rgba(255,255,255,0.3); font-weight: bold; }
         
-        .modal-btn-no {
-            background-color: #16a085;
-        }
+        .tab-content { display: none; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; min-height: 300px; margin-top: -1px; border: 1px solid rgba(255,255,255,0.1); }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* History List Styles */
+        #history-list {
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
         }
-
-        @keyframes scaleUp {
-            from { transform: scale(0.8); }
-            to { transform: scale(1); }
+        .history-item {
+            background: rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
         }
+        .history-item:hover { background: rgba(0,0,0,0.3); border-color: #1abc9c; }
+        .hist-title { font-size: 18px; font-weight: bold; color: #1abc9c; margin-bottom: 5px; }
+        .hist-detail { font-size: 14px; color: #bdc3c7; }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
+        th { color: #1abc9c; }
+        tr:last-child td { border-bottom: none; }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+        .modal-content { background: #34495e; padding: 30px; border-radius: 15px; width: 350px; text-align: center; border: 2px solid #1abc9c; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Math Mastery</h1>
-    </header>
 
-    <div id="game-container">
-        <div id="game-selection">
-            <button onclick="startGame('addition')">Addition</button>
-            <button onclick="startGame('subtraction')">Subtraction</button>
-            <button onclick="startGame('multiplication')">Multiplication</button>
-            <button onclick="startGame('division')">Division</button>
-            <button onclick="startGame('square')">Square</button>
-            <button onclick="startGame('percentage')">Percentage</button>
-            <button onclick="startGame('table')">Table</button>
-        </div>
-        <div id="game-settings" style="display: none;"></div>
-        <div id="game-area" style="display: none;">
-            <p id="question"></p>
-            <input type="number" id="answer" oninput="checkAnswer()">
-            <p id="result"></p>
-            <button class="go-back-button" onclick="goBack()">Go Back</button>
-        </div>
-        <div id="game-over" style="display: none;">
-            <h2>Game Over!</h2>
-            <p id="final-score"></p>
-            <p id="time-taken"></p>
-            <p id="average"></p>
-            <p id="accuracy"></p>
-            <button class="go-back-button" onclick="goBack()">Go Back</button>
-        </div>
+<header>
+    <h1>Math Mastery Pro</h1>
+</header>
+
+<div id="game-container">
+    <div id="screen-selection">
+        <button onclick="setupGame('addition')">Addition</button>
+        <button onclick="setupGame('subtraction')">Subtraction</button>
+        <button onclick="setupGame('multiplication')">Multiplication</button>
+        <button onclick="setupGame('division')">Division</button>
+        <button onclick="setupGame('square')">Square</button>
+        <button onclick="setupGame('percentage')">Percentage</button>
+        <button onclick="setupGame('table')">Tables</button>
+        <button onclick="setupGame('tableSum')">Table Sum</button>
+        
+        <br><br>
+        <button class="history-btn" onclick="showHistoryScreen()">📜 History & Progress</button>
     </div>
 
-    <div id="custom-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="modal-title">Title</h3>
-            <p id="modal-message">Message</p>
-            
-            <div id="modal-confirm-btns" style="display: none;">
-                <button class="modal-btn-yes" onclick="confirmExit()">Yes, Exit</button>
-                <button class="modal-btn-no" onclick="closeModal()">No, Cancel</button>
-            </div>
-
-            <div id="modal-alert-btns" style="display: none;">
-                 <button class="modal-btn-no" onclick="closeModal()">OK</button>
-            </div>
-        </div>
+    <div id="screen-settings" style="display:none;">
+        <h2 style="margin-top:0;">Configuration</h2>
+        <div id="settings-inputs"></div>
+        <br>
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="showScreen('selection')" style="background:#7f8c8d;">Back</button>
     </div>
 
-    <footer>
-        <p>Created with passion by Shiv</p>
-        <p>Sharpen Your Skills with Ease</p>
-        <p><a href="mailto:mintshiv1@gmail.com">Contact Us</a></p>
-    </footer>
+    <div id="screen-game" style="display:none;">
+        <div id="step-indicator"></div>
+        <div id="question"></div>
+        <input type="number" id="answer" autocomplete="off" oninput="checkInput(this)">
+        <div id="result"></div>
+        <br>
+        <button onclick="endGameEarly()" style="background:#e74c3c; font-size:14px; padding:8px 16px;">Exit</button>
+    </div>
 
-    <script>
-        // --- AUDIO SETUP ---
-        const clickSound = new Audio('Click.mp3');
-        const overSound = new Audio('Over.mp3');
-        const successSound = new Audio('Success.mp3');
-        const wrongSound = new Audio('Wrong.mp3');
+    <div id="screen-result" style="display:none;">
+        <h2 style="margin: 0 0 15px 0;">Performance</h2>
+        
+        <div class="stats-row">
+            <div class="stat-box"><h3>Total Time</h3><p id="res-time">0s</p></div>
+            <div class="stat-box"><h3>Avg Time</h3><p id="res-avg">0s</p></div>
+            <div class="stat-box"><h3>Accuracy</h3><p id="res-acc">100%</p></div>
+        </div>
 
-        function playClick() {
-            clickSound.currentTime = 0;
-            clickSound.play();
+        <button class="play-again-btn" onclick="restartGame()">PLAY AGAIN</button>
+        <button class="main-menu-btn" onclick="showScreen('selection')">Main Menu</button>
+
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('tab-timing')">Timing</button>
+            <button class="tab-btn" onclick="switchTab('tab-progress')">Progress</button>
+            <button class="tab-btn" onclick="switchTab('tab-slow')">Slowest</button>
+            <button class="tab-btn" onclick="switchTab('tab-mistakes')">Mistakes</button>
+        </div>
+
+        <div id="tab-timing" class="tab-content active">
+            <canvas id="timingChart" style="max-height: 250px;"></canvas>
+            <p style="font-size:14px; color:#ddd; margin-top:10px;">Time per question (Current Game)</p>
+        </div>
+
+        <div id="tab-progress" class="tab-content">
+            <canvas id="historyChart" style="max-height: 250px;"></canvas>
+            <p style="font-size:14px; color:#ddd; margin-top:10px;">Total time history (All Games)</p>
+        </div>
+
+        <div id="tab-slow" class="tab-content">
+            <table id="slow-table"><thead><tr><th>Question</th><th>Time (s)</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <div id="tab-mistakes" class="tab-content">
+            <table id="mistakes-table"><thead><tr><th>Question</th><th>Correct Answer</th></tr></thead><tbody></tbody></table>
+            <p id="no-mistakes" style="display:none; color:#2ecc71; font-weight:bold; margin-top:20px;">Perfect Score!</p>
+        </div>
+
+        <h3 style="margin-top:30px; border-top:1px solid rgba(255,255,255,0.2); padding-top:10px;">Top 5 Leaderboard</h3>
+        <table id="leaderboard-table">
+            <thead><tr><th>Rank</th><th>Name</th><th>Time</th><th>Date</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="screen-history" style="display:none;">
+        <h2>Game History</h2>
+        <p style="color:#bdc3c7; font-size:14px;">Select a game mode to view progress</p>
+        <div id="history-list"></div>
+        <br>
+        <button onclick="showScreen('selection')" style="background:#7f8c8d;">Back</button>
+    </div>
+
+    <div id="screen-history-detail" style="display:none;">
+        <h2 id="hist-detail-title">Mode Details</h2>
+        <p id="hist-detail-sub" style="color:#bdc3c7; font-size:14px; margin-bottom:20px;"></p>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; height: 300px; border: 1px solid rgba(255,255,255,0.1);">
+            <canvas id="detailChart"></canvas>
+        </div>
+        
+        <br>
+        <button onclick="showScreen('history')" style="background:#7f8c8d;">Back to List</button>
+    </div>
+</div>
+
+<div id="name-modal" class="modal">
+    <div class="modal-content">
+        <h3>New High Score!</h3>
+        <p>Enter name for the leaderboard</p>
+        <input type="text" id="player-name" placeholder="Name" maxlength="12">
+        <br><br>
+        <button onclick="saveHighScore()">Save</button>
+    </div>
+</div>
+
+<script>
+    // --- AUDIO ---
+    const sounds = {
+        click: new Audio('Click.mp3'),
+        success: new Audio('Success.mp3'),
+        wrong: new Audio('Wrong.mp3'),
+        over: new Audio('Over.mp3')
+    };
+    function play(key) { try{ sounds[key].currentTime=0; sounds[key].play().catch(()=>{}); }catch(e){} }
+
+    // --- STATE ---
+    let state = {
+        gameType: '',
+        settings: {},
+        questions: [],
+        results: [],
+        currentIdx: 0,
+        qStartTime: 0,
+        gameStartTime: 0
+    };
+    let chartInstance = null;
+    let historyChartInstance = null;
+    let detailChartInstance = null;
+
+    // --- WEIGHTS ---
+    function getWeights() { return JSON.parse(localStorage.getItem('mathWeights')) || {}; }
+    function saveWeights(w) { localStorage.setItem('mathWeights', JSON.stringify(w)); }
+    function updateWeight(key, timeTaken) {
+        let w = getWeights();
+        let current = w[key] || 1;
+        let factor = timeTaken / 3.0; 
+        let newWeight = current * factor;
+        if(newWeight < 0.1) newWeight = 0.1;
+        if(newWeight > 20) newWeight = 20;
+        w[key] = newWeight;
+        saveWeights(w);
+    }
+
+    // --- NAVIGATION ---
+    function showScreen(id) {
+        document.querySelectorAll('#game-container > div').forEach(d => d.style.display = 'none');
+        document.getElementById(`screen-${id}`).style.display = 'block';
+    }
+
+    function switchTab(tabId) {
+        play('click');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        
+        const btns = document.querySelectorAll('.tab-btn');
+        if(tabId === 'tab-timing') btns[0].classList.add('active');
+        if(tabId === 'tab-progress') btns[1].classList.add('active');
+        if(tabId === 'tab-slow') btns[2].classList.add('active');
+        if(tabId === 'tab-mistakes') btns[3].classList.add('active');
+    }
+
+    // --- SETUP ---
+    function loadSettings(type) { return JSON.parse(localStorage.getItem(`mathSet_${type}`)) || {}; }
+    function saveSettings(type, data) { localStorage.setItem(`mathSet_${type}`, JSON.stringify(data)); }
+
+    function setupGame(type) {
+        play('click');
+        state.gameType = type;
+        const s = loadSettings(type);
+        const div = document.getElementById('settings-inputs');
+        div.innerHTML = '';
+        
+        const num = (id, lbl, val) => `<div style="margin:10px;"><label>${lbl}: <br><input type="number" id="${id}" value="${val}"></label></div>`;
+        const chk = (id, lbl, val) => `<label class="chk-container"><input type="checkbox" id="${id}" ${val?'checked':''}><span>${lbl}</span></label>`;
+
+        let html = '';
+        const defMin = s.min || 2;
+        const defMax = s.max || 20;
+        const defCount = s.count || 10;
+        
+        html += chk('adaptable', 'Adaptable Mode', s.adaptable) + '<br>';
+
+        if (type === 'table') {
+            html += `<p style="font-size:20px; color:#eee;">Select Ranges:</p><div style="text-align:left; display:inline-block;">`;
+            [10,20,30,40,50].forEach(r => {
+                let checked = s.ranges ? s.ranges.includes(r) : (r===10);
+                html += `<div><label style="font-size:20px;"><input type="checkbox" name="tblRange" value="${r}" ${checked?'checked':''}> ${(r-9)}-${r}</label></div>`;
+            });
+            html += `</div>`;
+            html += num('count', 'Questions', defCount);
+        } else if (type === 'tableSum') {
+            html += num('min', 'Range Min', defMin);
+            html += num('max', 'Range Max', defMax);
+            html += num('count', 'No. of Tables', s.count || 5);
+            html += chk('showSum', 'Show Running Total', s.showSum !== false);
+        } else {
+            html += num('min', 'Range Min', defMin);
+            html += num('max', 'Range Max', defMax);
+            if(type === 'addition') html += num('qty', 'Numbers Count', s.qty || 2);
+            if(type === 'square') html += `<div style="margin:10px;"><label>Power: <br><select id="power" style="font-size:20px; padding:5px;"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label></div>`;
+            if(type === 'percentage') html += `<div style="margin:10px;"><label>Difficulty: <br><select id="diff" style="font-size:20px; padding:5px;"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label></div>`;
+            html += num('count', 'Questions', defCount);
         }
 
-        let selectedGame;
-        let settings = {};
-        let questions = [];
-        let answers = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let startTime;
-        let endTime;
-        let lastQuestionIndex = -1;
-        let realCorrect = 0;
+        div.innerHTML = html;
+        if(s.power && document.getElementById('power')) document.getElementById('power').value = s.power;
+        if(s.diff && document.getElementById('diff')) document.getElementById('diff').value = s.diff;
+        
+        showScreen('settings');
+    }
 
-        // --- DYNAMIC MODAL FUNCTIONS ---
-        function showModal(type, title, message) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-message').innerText = message;
+    // --- HISTORY FUNCTIONS ---
+    function showHistoryScreen() {
+        play('click');
+        const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
+        const listDiv = document.getElementById('history-list');
+        listDiv.innerHTML = '';
+
+        if(history.length === 0) {
+            listDiv.innerHTML = '<p>No games played yet.</p>';
+            showScreen('history');
+            return;
+        }
+
+        // Group by Signature
+        let groups = {};
+        history.forEach(h => {
+            if(!groups[h.sig]) {
+                groups[h.sig] = {
+                    sig: h.sig,
+                    data: JSON.parse(h.sig),
+                    count: 0,
+                    lastPlayed: 0,
+                    bestTime: Infinity
+                };
+            }
+            let g = groups[h.sig];
+            g.count++;
+            if(h.date > g.lastPlayed) g.lastPlayed = h.date;
+            if(h.time < g.bestTime) g.bestTime = h.time;
+        });
+
+        // Convert to array and sort by last played
+        let groupArr = Object.values(groups).sort((a,b) => b.lastPlayed - a.lastPlayed);
+
+        groupArr.forEach(g => {
+            let t = g.data.t; // type
+            let s = g.data.s; // settings
             
-            const confirmBtns = document.getElementById('modal-confirm-btns');
-            const alertBtns = document.getElementById('modal-alert-btns');
-
-            if (type === 'confirm') {
-                confirmBtns.style.display = 'block';
-                alertBtns.style.display = 'none';
-            } else {
-                confirmBtns.style.display = 'none';
-                alertBtns.style.display = 'block';
-            }
-            document.getElementById('custom-modal').style.display = 'flex';
-        }
-
-        function goBack() {
-            playClick(); 
-            showModal('confirm', 'Are you sure?', '');
-        }
-
-        function closeModal() {
-            playClick();
-            document.getElementById('custom-modal').style.display = 'none';
-        }
-
-        function confirmExit() {
-            playClick();
-            document.getElementById('custom-modal').style.display = 'none';
+            // Format Description
+            let desc = `${t.charAt(0).toUpperCase() + t.slice(1)}`;
+            if(t === 'table') desc += ` (Range: ${s.ranges.join(',')})`;
+            else if(t === 'tableSum') desc += ` (Min: ${s.min}, Max: ${s.max})`;
+            else desc += ` (Min: ${s.min}, Max: ${s.max})`;
             
-            document.getElementById('game-selection').style.display = 'block';
-            document.getElementById('game-settings').style.display = 'none';
-            document.getElementById('game-area').style.display = 'none';
-            document.getElementById('game-over').style.display = 'none';
-            selectedGame = null;
-            settings = {};
-            questions = [];
-            answers = [];
-            score = 0;
-        }
+            if(s.adaptable) desc += " [Adaptable]";
 
-        function startGame(gameType) {
-            playClick();
-            selectedGame = gameType;
-            document.getElementById('game-selection').style.display = 'none';
-            document.getElementById('game-settings').style.display = 'block';
-            generateSettingsInputs();
-        }
+            let dateStr = new Date(g.lastPlayed).toLocaleDateString();
 
-        function generateSettingsInputs() {
-            let settingsDiv = document.getElementById('game-settings');
-            settingsDiv.innerHTML = '';
-            let rangeMinInput, rangeMaxInput, countInput, quantityInput, powerInput, percentageInput;
+            let el = document.createElement('div');
+            el.className = 'history-item';
+            el.innerHTML = `
+                <div class="hist-title">${desc}</div>
+                <div class="hist-detail">Played: ${g.count} times | Last: ${dateStr} | Best: ${g.bestTime.toFixed(1)}s</div>
+            `;
+            el.onclick = () => showHistoryDetail(g.sig, desc);
+            listDiv.appendChild(el);
+        });
 
-            switch (selectedGame) {
-                case 'addition':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="2"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="20"></label><br>`;
-                    countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
-                    quantityInput = `<label>Quantity of Numbers: <input type="number" id="quantity" value="2"></label><br>`;
-                    settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + quantityInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
-                    break;
-                case 'subtraction':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="10"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="100"></label><br>`;
-                    countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
-                    settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
-                    break;
-                case 'multiplication':
-                case 'division':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="2"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="12"></label><br>`;
-                    countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
-                    settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
-                    break;
-                case 'square':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="2"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="20"></label><br>`;
-                    countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
-                    powerInput = `<label>Power : <select id="power"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label><br>`;
-                    settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + powerInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
-                    break;
-                case 'percentage':
-                    rangeMinInput = `<label>Range Min: <input type="number" id="rangeMin" value="10"></label><br>`;
-                    rangeMaxInput = `<label>Range Max: <input type="number" id="rangeMax" value="200"></label><br>`;
-                    countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
-                    percentageInput = `<label>Percentage Complexity: <select id="percentageComplexity"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option><option value="expert">Expert</option></select></label><br>`;
-                    settingsDiv.innerHTML = rangeMinInput + rangeMaxInput + countInput + percentageInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
-                    break;
-                case 'table':
-                    countInput = `<label>Number of Questions: <input type="number" id="count" value="10"></label><br>`;
-                    let tableRange = `<label>Table Ranges: <br>
-                                            <input type="checkbox" id="tableRange1" name="tableRange" value="10"><label for="tableRange1">1-10</label><br>
-                                            <input type="checkbox" id="tableRange2" name="tableRange" value="20"><label for="tableRange2">11-20</label><br>
-                                            <input type="checkbox" id="tableRange3" name="tableRange" value="30"><label for="tableRange3">21-30</label><br>
-                                            <input type="checkbox" id="tableRange4" name="tableRange" value="40"><label for="tableRange4">31-40</label><br>
-                                            <input type="checkbox" id="tableRange5" name="tableRange" value="50"><label for="tableRange5">41-50</label><br>
-                                    </label><br>`;
-                    settingsDiv.innerHTML = tableRange + countInput + `<button onclick="startActualGame()">Start</button><button onclick="goBack()">Go Back</button>`;
-                    break;
+        showScreen('history');
+    }
+
+    function showHistoryDetail(sig, title) {
+        play('click');
+        const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
+        const filtered = history.filter(h => h.sig === sig).sort((a,b) => a.date - b.date);
+
+        document.getElementById('hist-detail-title').innerText = title;
+        document.getElementById('hist-detail-sub').innerText = `Total Games: ${filtered.length}`;
+
+        showScreen('history-detail');
+
+        const ctx = document.getElementById('detailChart').getContext('2d');
+        if(detailChartInstance) detailChartInstance.destroy();
+
+        detailChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: filtered.map((_, i) => i+1),
+                datasets: [{ 
+                    label: 'Total Time (s)', 
+                    data: filtered.map(d => d.time), 
+                    borderColor: '#f1c40f',
+                    backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { 
+                    x:{ ticks: { color: '#bdc3c7' } }, 
+                    y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}, ticks:{ color: '#bdc3c7' } } 
+                }, 
+                plugins:{ legend:{display:false} } 
             }
-        }
+        });
+    }
 
-       function startActualGame() {
-           // Validation
-           let inputs = document.querySelectorAll('#game-settings input[type="number"]');
-           for(let input of inputs) {
-               let val = parseInt(input.value);
-               if (isNaN(val) || val <= 0) {
-                   wrongSound.currentTime = 0;
-                   wrongSound.play();
-                   showModal('alert', 'Invalid Input', 'Please enter a correct value (greater than 0).');
-                   return;
-               }
-           }
+    // --- GAME LOGIC ---
+    function generateQuestions(s) {
+        let result = [];
+        let adapt = s.adaptable;
+        let weights = getWeights(); 
 
-           playClick();
-           currentQuestionIndex = 0;
-            if (selectedGame === 'table') {
-                const checkedRanges = Array.from(document.querySelectorAll('input[name="tableRange"]:checked'));
-                if (checkedRanges.length === 0) {
-                    wrongSound.currentTime = 0;
-                    wrongSound.play();
-                    showModal('alert', 'Selection Required', 'Please select at least one table range.');
-                    return;
-                }
-                settings.tableRanges = checkedRanges.map(el => parseInt(el.value));
+        if(state.gameType === 'tableSum') {
+            let pool = [];
+            for(let i=s.min; i<=s.max; i++) pool.push(i);
+            if(adapt) {
+                pool.sort((a,b) => (weights[`Sum_${b}`]||1) - (weights[`Sum_${a}`]||1));
+                let heavyCount = Math.floor(s.count / 2);
+                let bases = [...pool.slice(0, heavyCount)];
+                let fullRandom = [...pool].sort(()=>Math.random()-0.5);
+                for(let k=0; k<(s.count-heavyCount); k++) bases.push(fullRandom[k%fullRandom.length]);
+                bases.sort(() => Math.random() - 0.5);
+                return generateTableSumFromBases(bases, s);
             } else {
-                settings.rangeMin = parseInt(document.getElementById('rangeMin').value);
-                settings.rangeMax = parseInt(document.getElementById('rangeMax').value);
+                let bases = [];
+                let p = [...pool].sort(()=>Math.random()-0.5);
+                for(let i=0; i<s.count; i++) bases.push(p[i % p.length]);
+                return generateTableSumFromBases(bases, s);
             }
-            settings.count = parseInt(document.getElementById('count').value);
-            if (selectedGame === 'addition') {
-                settings.quantity = parseInt(document.getElementById('quantity').value);
-            }
-            if (selectedGame === 'square') {
-                settings.power = parseInt(document.getElementById('power').value);
-            }
-            if(selectedGame === 'percentage'){
-                settings.percentageComplexity = document.getElementById('percentageComplexity').value;
-            }
-
-            document.getElementById('game-settings').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
-
-            generateQuestions();
-            displayQuestion();
-            startTime = new Date();
         }
-          
-        // Helper to avoid 0, 1, 10 if possible
-        function getNonTrivialNumber(min, max) {
-            let num;
-            let attempts = 0;
-            do {
-                num = Math.floor(Math.random() * (max - min + 1)) + min;
-                attempts++;
-                // Stop trying if we have tried too many times (prevents infinite loop on small ranges)
-            } while ((num === 0 || num === 1 || num === 10) && attempts < 20);
-            return num;
+        
+        let heavyCandidates = [];
+        if(adapt) {
+            Object.keys(weights).forEach(k => {
+                if(weights[k] > 1.2) { 
+                    if(state.gameType === 'multiplication' && k.includes('×')) heavyCandidates.push(k);
+                    if(state.gameType === 'addition' && k.includes('+')) heavyCandidates.push(k);
+                    if(state.gameType === 'subtraction' && k.includes('-')) heavyCandidates.push(k);
+                    if(state.gameType === 'division' && k.includes('÷')) heavyCandidates.push(k);
+                    if(state.gameType === 'square' && k.includes('^')) heavyCandidates.push(k);
+                }
+            });
+            heavyCandidates.sort((a,b) => weights[b] - weights[a]);
         }
 
-        function generateQuestions() {
-            questions = [];
-            answers = [];
-            realCorrect = 0;
-            lastQuestionIndex = -1;
-            for (let i = 0; i < settings.count; i++) {
-                let num1, num2, result;
-                switch (selectedGame) {
-                    case 'addition':
-                        let nums = [];
-                        let questionString = "";
-                        result = 0;
-                        for (let j = 0; j < settings.quantity; j++) {
-                            // Try to avoid 0 in addition
-                            let num = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
-                            // Relax the rule for addition (allow 1 or 10, just avoid 0 ideally)
-                            if (num === 0 && settings.rangeMax > 0) num = 1;
-                            
-                            nums.push(num);
-                            result += num;
-                            questionString += num;
-                            if (j < settings.quantity - 1) {
-                                questionString += " + ";
-                            }
-                        }
-                        questions.push(questionString + " = ?");
-                        answers.push(result);
-                        break;
-                    case 'subtraction':
-                        // Ensure no negative result, no subtracting 0, no result 0
-                        let subAttempts = 0;
-                        do {
-                            num1 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                            num2 = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                            if (num2 > num1) [num1, num2] = [num2, num1];
-                            subAttempts++;
-                        } while ((num2 === 0 || num1 === num2) && subAttempts < 20);
-
-                        result = num1 - num2;
-                        questions.push(`${num1} - ${num2} = ?`);
-                        answers.push(result);
-                        break;
-                    case 'multiplication':
-                        // Avoid 0, 1, 10
-                        num1 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
-                        num2 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
-                        result = num1 * num2;
-                        questions.push(`${num1} * ${num2} = ?`);
-                        answers.push(result);
-                        break;
-                    case 'division':
-                        // Avoid dividing by 1 or 10
-                        num2 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
-                        // Ensure operand isn't 0
-                        if (num2 === 0) num2 = 2; 
-
-                        let multiplier = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
-                        num1 = num2 * multiplier;
-                        
-                        questions.push(`${num1} / ${num2} = ?`);
-                        answers.push(multiplier);
-                        break;
-                    case 'square':
-                        num1 = getNonTrivialNumber(settings.rangeMin, settings.rangeMax);
-                        num2 = Math.floor(Math.random() * 30) + 1;
-                        result = Math.pow(num1, settings.power) + num2;
-                        questions.push(`${num1}^${settings.power} + ${num2} = ?`);
-                        answers.push(result);
-                        break;
-                    case 'percentage':
-                        let percentage;
-                        switch (settings.percentageComplexity) {
-                            case 'easy':
-                                percentage = Math.floor(Math.random() * 19) + 1; // 1 to 19
-                                percentage = percentage * 5; // 5, 10, ... 95
-                                break;
-                            case 'medium':
-                                percentage = Math.floor(Math.random() * 95) + 2; 
-                                // filter out multiples of 5 to make it "Medium" not Easy
-                                while (percentage % 5 === 0) {
-                                    percentage = Math.floor(Math.random() * 95) + 2;
-                                }
-                                break;
-                            case 'hard':
-                                percentage = (Math.random() * 98 + 1).toFixed(1);
-                                break;
-                            case 'expert':
-                                percentage = (Math.random() * 98 + 1).toFixed(2);
-                                break;
-                        }
-                        let total = Math.floor(Math.random() * (settings.rangeMax - settings.rangeMin + 1)) + settings.rangeMin;
-                        if(total === 0) total = 100;
-                        result = (percentage / 100) * total;
-                        questions.push(`${percentage}% of ${total} = ?`);
-                        answers.push(parseFloat(result.toFixed(2)));
-                        break;
-                    case 'table':
-                        if (settings.tableRanges && settings.tableRanges.length > 0) {
-                            let selectedRange = settings.tableRanges[Math.floor(Math.random() * settings.tableRanges.length)];
-                            let rangeStart = 1;
-                            let rangeEnd = 10;
-                            switch (selectedRange) {
-                                case 20: rangeStart = 11; rangeEnd = 20; break;
-                                case 30: rangeStart = 21; rangeEnd = 30; break;
-                                case 40: rangeStart = 31; rangeEnd = 40; break;
-                                case 50: rangeStart = 41; rangeEnd = 50; break;
-                            }
-                            settings.tableNum = Math.floor(Math.random() * (rangeEnd - rangeStart + 1)) + rangeStart;
-                            
-                            // For tables, multiply by 2 to 9 (Avoid 1 and 10)
-                            num2 = Math.floor(Math.random() * 8) + 2; 
-                            
-                            result = settings.tableNum * num2;
-                            questions.push(`${settings.tableNum} x ${num2} = ?`);
-                            answers.push(result);
-                        }
-                        break;
+        for(let i=0; i<s.count; i++) {
+            let qObj = null;
+            let useHeavy = adapt && (i % 2 === 0) && (heavyCandidates.length > 0);
+            if(useHeavy) {
+                let key = heavyCandidates.shift();
+                if(key) {
+                    try {
+                        qObj = { q: key, id: key }; 
+                        if(key.includes('+')) { qObj.a = key.split(' + ').reduce((a,b)=>parseFloat(a)+parseFloat(b),0); }
+                        else if(key.includes('-')) { let [a,b]=key.split(' - '); qObj.a = a-b; }
+                        else if(key.includes('×')) { let [a,b]=key.split(' × '); qObj.a = a*b; }
+                        else if(key.includes('÷')) { let [n1,n2]=key.split(' ÷ '); qObj.a = n1/n2; } 
+                        else if(key.includes('^')) { let [b,r]=key.split('^'); let [p,a]=r.split(' + '); qObj.a = Math.pow(b,p)+parseInt(a); }
+                    } catch(e) { qObj = null; }
                 }
             }
+            if(!qObj) qObj = generateRandomQuestion(s);
+            result.push(qObj);
+        }
+        return result;
+    }
+
+    function generateTableSumFromBases(bases, s) {
+        let res = [];
+        bases.forEach(base => {
+            let running = base;
+            for(let k=2; k<=10; k++) {
+                let next = running + base;
+                let txt = s.showSum ? `${running} + ${base}` : `? + ${base}`;
+                res.push({ q: txt, a: next, step: k, id: `Sum_${base}` });
+                running = next;
+            }
+        });
+        return res;
+    }
+
+    function generateRandomQuestion(s) {
+        let n1 = Math.floor(Math.random()*(s.max-s.min+1))+s.min;
+        let n2 = Math.floor(Math.random()*(s.max-s.min+1))+s.min;
+        let qObj = {};
+        
+        switch(state.gameType) {
+            case 'addition':
+                let nums = [n1]; let sum = n1;
+                for(let k=1; k<s.qty; k++) { let r=Math.floor(Math.random()*(s.max-s.min+1))+s.min; nums.push(r); sum+=r; }
+                qObj.q = nums.join(" + "); qObj.a = sum; break;
+            case 'subtraction':
+                if(n2>n1) [n1,n2] = [n2,n1]; qObj.q = `${n1} - ${n2}`; qObj.a = n1-n2; break;
+            case 'multiplication':
+                qObj.q = `${n1} × ${n2}`; qObj.a = n1*n2; break;
+            case 'division':
+                if(n1===0) n1=1; let ans = Math.floor(Math.random()*(s.max-s.min+1))+s.min;
+                let div = n1 * ans; qObj.q = `${div} ÷ ${n1}`; qObj.a = ans; break;
+            case 'square':
+                let add = Math.floor(Math.random()*20)+1; qObj.q = `${n1}^${s.power} + ${add}`; qObj.a = Math.pow(n1, s.power)+add; break;
+            case 'percentage':
+                let p = (s.diff==='easy') ? (Math.floor(Math.random()*19)+1)*5 : Math.floor(Math.random()*99)+1;
+                qObj.q = `${p}% of ${n1}`; qObj.a = (p/100)*n1; break;
+            case 'table':
+                let rng = s.ranges[Math.floor(Math.random()*s.ranges.length)];
+                let t = Math.floor(Math.random()*10)+(rng-9); let m = Math.floor(Math.random()*9)+2;
+                qObj.q = `${t} × ${m}`; qObj.a = t*m; break;
+        }
+        if(!qObj.id) qObj.id = qObj.q;
+        return qObj;
+    }
+
+    function startGame() {
+        play('click');
+        let s = {};
+        const getVal = (id) => document.getElementById(id) ? parseInt(document.getElementById(id).value) : 0;
+        
+        s.min = getVal('min');
+        s.max = getVal('max');
+        s.count = getVal('count');
+        s.adaptable = document.getElementById('adaptable').checked;
+
+        if(state.gameType === 'addition') s.qty = getVal('qty');
+        if(state.gameType === 'square') s.power = getVal('power');
+        if(state.gameType === 'percentage') s.diff = document.getElementById('diff').value;
+        if(state.gameType === 'tableSum') s.showSum = document.getElementById('showSum').checked;
+        if(state.gameType === 'table') {
+            s.ranges = Array.from(document.querySelectorAll('input[name="tblRange"]:checked')).map(c => parseInt(c.value));
+            s.count = getVal('count');
+            if(s.ranges.length === 0) return alert("Select a range!");
+        }
+        if(s.count < 1) return alert("Count > 0 required");
+
+        saveSettings(state.gameType, s);
+        state.settings = s;
+        state.questions = generateQuestions(s);
+        state.results = [];
+        state.currentIdx = 0;
+        state.gameStartTime = Date.now();
+        showScreen('game');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        if(state.currentIdx >= state.questions.length) return finishGame();
+        let q = state.questions[state.currentIdx];
+        
+        const ind = document.getElementById('step-indicator');
+        if(state.gameType === 'tableSum' && q.step) {
+            ind.style.visibility = 'visible';
+            ind.innerText = `Step ${q.step} / 10`;
+        } else {
+            ind.style.visibility = 'hidden';
         }
 
-        function displayQuestion() {
-            document.getElementById('question').textContent = questions[currentQuestionIndex];
-            document.getElementById('answer').value = '';
-            document.getElementById('result').textContent = "";
-        }
+        document.getElementById('question').innerText = q.q + " = ?";
+        let inp = document.getElementById('answer');
+        inp.value = '';
+        inp.focus();
+        document.getElementById('result').innerText = '';
+        state.qStartTime = Date.now();
+    }
 
-        function checkAnswer() {
-            let userAnswer = parseFloat(document.getElementById('answer').value);
-            if (userAnswer === answers[currentQuestionIndex]) {
-                successSound.currentTime = 0; 
-                successSound.play();
-                document.getElementById('result').textContent = 'Correct!';
-                document.getElementById('result').style.color = "green";
-                score++;
-                if (currentQuestionIndex != lastQuestionIndex) {
-                    lastQuestionIndex = currentQuestionIndex;
-                    realCorrect++;
-                }
-                currentQuestionIndex++;
-                if (currentQuestionIndex < questions.length) {
-                    displayQuestion();
-                } else {
-                    endGame();
-                }
-            } else if (!isNaN(userAnswer) && userAnswer > answers[currentQuestionIndex]) {
-                wrongSound.currentTime = 0;
-                wrongSound.play();
-                document.getElementById('result').textContent = 'Incorrect!';
-                document.getElementById('result').style.color = "red";
-                if (currentQuestionIndex != lastQuestionIndex) {
-                    lastQuestionIndex = currentQuestionIndex;
-                }
-                setTimeout(() => {
-                    document.getElementById('answer').value = '';
-                }, 300);
-            } else if (!isNaN(userAnswer)) {
-                document.getElementById('result').textContent = "";
+    function checkInput(elm) {
+        if(!elm.value) return;
+        let val = parseFloat(elm.value);
+        let q = state.questions[state.currentIdx];
+        let correctStr = q.a.toString();
+        
+        if(elm.value.length >= correctStr.length) {
+            let timeTaken = (Date.now() - state.qStartTime) / 1000;
+            if(Math.abs(val - q.a) < 0.01) {
+                play('success');
+                document.getElementById('result').innerHTML = '<span style="color:#2ecc71">Correct!</span>';
+                if(state.settings.adaptable) updateWeight(q.id, timeTaken);
+                state.results.push({ q: q.q, a: q.a, uAns: val, correct: true, time: timeTaken });
+                state.currentIdx++;
+                setTimeout(renderQuestion, 200);
+            } else {
+                play('wrong');
+                document.getElementById('result').innerHTML = '<span style="color:#e74c3c">Wrong!</span>';
+                if(state.settings.adaptable) updateWeight(q.id, 10);
+                state.results.push({ q: q.q, a: q.a, uAns: val, correct: false, time: timeTaken });
+                elm.value = '';
             }
         }
+    }
+    
+    function endGameEarly() { if(confirm("Exit?")) showScreen('selection'); }
 
-       function endGame() {
-            overSound.currentTime = 0;
-            overSound.play();
-            endTime = new Date();
-            currentQuestionIndex = 0;
-            let timeDiff = (endTime - startTime) / 1000;
-            let accuracy = (realCorrect / questions.length) * 100;
-            let average=timeDiff/questions.length;
-            document.getElementById('game-area').style.display = 'none';
-            document.getElementById('game-over').style.display = 'block';
-            document.getElementById('final-score').textContent = `Your Score: ${realCorrect} / ${questions.length}`;
-            document.getElementById('time-taken').textContent = `Time Taken: ${(timeDiff / 60).toFixed(0)} minutes ${(timeDiff % 60).toFixed(0)} sec`;
-            document.getElementById('average').textContent = `Average Time: ${average.toFixed(2)}sec `;
-            document.getElementById('accuracy').textContent = `Accuracy: ${accuracy.toFixed(2)}% `;
+    function finishGame() {
+        play('over');
+        let totalTime = (Date.now() - state.gameStartTime) / 1000;
+        let mistakesCount = state.results.filter(r => !r.correct).length;
+        let accuracy = (state.questions.length / (state.questions.length + mistakesCount)) * 100;
+        let avgTime = totalTime / state.questions.length;
+
+        document.getElementById('res-time').innerText = totalTime.toFixed(1) + 's';
+        document.getElementById('res-avg').innerText = avgTime.toFixed(2) + 's';
+        document.getElementById('res-acc').innerText = accuracy.toFixed(0) + '%';
+
+        let successResults = state.results.filter(r => r.correct);
+        renderTimingChart(successResults);
+
+        // Slow Table
+        let slowTbody = document.querySelector('#slow-table tbody');
+        slowTbody.innerHTML = '';
+        [...successResults].sort((a,b) => b.time - a.time).slice(0, 5).forEach(r => {
+            slowTbody.innerHTML += `<tr><td>${r.q}</td><td>${r.time.toFixed(2)}s</td></tr>`;
+        });
+
+        // Mistakes Table
+        let missTbody = document.querySelector('#mistakes-table tbody');
+        missTbody.innerHTML = '';
+        let failures = state.results.filter(r => !r.correct);
+        if(failures.length === 0) {
+            document.getElementById('mistakes-table').style.display = 'none';
+            document.getElementById('no-mistakes').style.display = 'block';
+        } else {
+            document.getElementById('mistakes-table').style.display = 'table';
+            document.getElementById('no-mistakes').style.display = 'none';
+            let counts = {};
+            failures.forEach(f => { let k = `${f.q} (Ans: ${f.a})`; counts[k] = (counts[k]||0)+1; });
+            Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).forEach(k => {
+                let parts = k.match(/(.*) \(Ans: (.*)\)/);
+                missTbody.innerHTML += `<tr><td>${parts[1]}</td><td>${parts[2]}</td></tr>`;
+            });
         }
-    </script>
+
+        let sig = JSON.stringify({t:state.gameType, s:state.settings});
+        let history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
+        let entry = { time: totalTime, date: Date.now(), sig: sig, acc: accuracy, name: '' };
+        history.push(entry);
+
+        let historyData = history.filter(h => h.sig === sig).sort((a,b) => a.date - b.date);
+        renderHistoryChart(historyData);
+        
+        let leaderboard = [...historyData].sort((a,b) => a.time - b.time).slice(0,5);
+        let lbBody = document.querySelector('#leaderboard-table tbody');
+        lbBody.innerHTML = '';
+        let isTop5 = false;
+        
+        leaderboard.forEach((h, i) => {
+            let isMe = (h.date === entry.date);
+            if(isMe) isTop5 = true;
+            let d = new Date(h.date);
+            lbBody.innerHTML += `<tr style="${isMe?'background:rgba(46, 204, 113, 0.2)':''}">
+                <td>#${i+1}</td><td>${h.name || 'Anonymous'}</td><td>${h.time.toFixed(1)}s</td><td>${d.getDate()}/${d.getMonth()+1}</td></tr>`;
+        });
+        localStorage.setItem('mathHistory_v3', JSON.stringify(history));
+
+        showScreen('result');
+        switchTab('tab-timing');
+
+        if(isTop5) {
+            setTimeout(() => {
+                document.getElementById('name-modal').style.display = 'flex';
+                document.getElementById('player-name').focus();
+            }, 500);
+        }
+    }
+
+    function renderTimingChart(data) {
+        const ctx = document.getElementById('timingChart').getContext('2d');
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map((_, i) => `Q${i+1}`),
+                datasets: [{ label: 'Time (s)', data: data.map(d => d.time), backgroundColor: 'rgba(26, 188, 156, 0.6)' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x:{display:false}, y:{beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}} }, plugins:{legend:{display:false}} }
+        });
+    }
+
+    function renderHistoryChart(data) {
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        if(historyChartInstance) historyChartInstance.destroy();
+        historyChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map((_, i) => i+1),
+                datasets: [{ 
+                    label: 'Total Time (s)', 
+                    data: data.map(d => d.time), 
+                    borderColor: '#f1c40f',
+                    backgroundColor: 'rgba(241, 196, 15, 0.2)',
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { 
+                    x:{ ticks: { color: '#bdc3c7' } }, 
+                    y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}, ticks:{ color: '#bdc3c7' } } 
+                }, 
+                plugins:{ legend:{display:false} } 
+            }
+        });
+    }
+
+    function restartGame() { startGame(); }
+    function saveHighScore() {
+        let name = document.getElementById('player-name').value || 'Anonymous';
+        let history = JSON.parse(localStorage.getItem('mathHistory_v3'));
+        history[history.length-1].name = name;
+        localStorage.setItem('mathHistory_v3', JSON.stringify(history));
+        document.getElementById('name-modal').style.display = 'none';
+        let rows = document.querySelectorAll('#leaderboard-table tbody tr');
+        rows.forEach(r => { if(r.style.background.includes('rgba')) r.children[1].innerText = name; });
+    }
+</script>
 </body>
 </html>
