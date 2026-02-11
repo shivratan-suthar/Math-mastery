@@ -6,169 +6,50 @@
     <title>Math Mastery Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: #ecf0f1;
-        }
-
-        header {
-            background-color: rgba(44, 62, 80, 0.85);
-            padding: 25px;
-            width: 90%;
-            text-align: center;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; background: linear-gradient(135deg, #2c3e50, #34495e); color: #ecf0f1; }
+        header { background-color: rgba(44, 62, 80, 0.85); padding: 25px; width: 90%; text-align: center; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); }
         h1 { font-size: 36px; color: #1abc9c; margin: 0; }
-
-        #game-container {
-            text-align: center;
-            background-color: rgba(52, 152, 219, 0.85); /* Blue Box */
-            padding: 40px;
-            border-radius: 18px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            width: 85%;
-            max-width: 800px;
-            margin-bottom: 40px;
-        }
-
-        /* Buttons */
-        button {
-            padding: 14px 30px;
-            margin: 10px;
-            font-size: 18px;
-            background: linear-gradient(135deg, #16a085, #1abc9c);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+        #game-container { text-align: center; background-color: rgba(52, 152, 219, 0.85); padding: 40px; border-radius: 18px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); width: 85%; max-width: 800px; margin-bottom: 40px; }
+        button { padding: 14px 30px; margin: 10px; font-size: 18px; background: linear-gradient(135deg, #16a085, #1abc9c); color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
         button:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); }
-
-        .play-again-btn {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            font-size: 24px;
-            font-weight: bold;
-            padding: 15px 50px;
-            display: block;
-            margin: 20px auto 10px auto;
-            width: 80%;
-            animation: pulse 2s infinite;
-        }
-
-        .main-menu-btn {
-            background: #e74c3c;
-            font-size: 18px;
-            display: block;
-            margin: 10px auto 30px auto;
-            width: 60%;
-        }
+        .play-again-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); font-size: 24px; font-weight: bold; padding: 15px 50px; display: block; margin: 20px auto 10px auto; width: 80%; animation: pulse 2s infinite; }
+        .main-menu-btn { background: #e74c3c; font-size: 18px; display: block; margin: 10px auto 30px auto; width: 60%; }
         .main-menu-btn:hover { background: #c0392b; }
-
-        .history-btn {
-            background: #8e44ad; /* Purple for History */
-            width: 80%;
-            display: block;
-            margin: 20px auto;
-        }
+        .history-btn { background: #8e44ad; width: 80%; display: block; margin: 20px auto; }
         .history-btn:hover { background: #9b59b6; }
-
-        /* Inputs */
-        input[type="number"], input[type="text"] {
-            padding: 12px;
-            font-size: 28px;
-            margin: 15px;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            width: 150px;
-            text-align: center;
-            background-color: #34495e;
-            color: #ecf0f1;
-            font-weight: bold;
-        }
+        input[type="number"], input[type="text"] { padding: 12px; font-size: 28px; margin: 15px; border: 2px solid #bdc3c7; border-radius: 8px; width: 150px; text-align: center; background-color: #34495e; color: #ecf0f1; font-weight: bold; }
         input:focus { border-color: #1abc9c; outline: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-        /* Checkbox Style */
-        .chk-container {
-            display: inline-block;
-            background: rgba(0,0,0,0.1);
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin: 10px;
-            cursor: pointer;
-        }
+        .chk-container { display: inline-block; background: rgba(0,0,0,0.1); padding: 10px 20px; border-radius: 8px; margin: 10px; cursor: pointer; }
         .chk-container:hover { background: rgba(0,0,0,0.2); }
         .chk-container input { width: 20px; height: 20px; vertical-align: middle; margin-right: 10px; }
         .chk-container span { vertical-align: middle; font-size: 18px; font-weight: bold; }
-
-        /* Game Area */
+        
+        /* New Counter Style */
+        #q-counter { font-size: 18px; color: #ecf0f1; margin-bottom: 5px; opacity: 0.8; }
+        
         #step-indicator { font-size: 24px; color: #f1c40f; font-weight: bold; margin-bottom: 5px; height: 30px; }
-        
-        /* Updated Font Size for Question to 22px */
-        #question { 
-            font-size: 22px; 
-            font-weight: bold; 
-            margin: 10px 0; 
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3); 
-        }
-        
+        #question { font-size: 22px; font-weight: bold; margin: 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
         #result { height: 30px; font-size: 22px; font-weight: bold; margin-top: 10px; }
-
-        /* Stats & Tabs */
         .stats-row { display: flex; justify-content: space-around; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
         .stat-box h3 { margin: 0; font-size: 14px; color: #bdc3c7; }
         .stat-box p { margin: 5px 0 0 0; font-size: 22px; font-weight: bold; color: #fff; }
-
         .tab-container { display: flex; justify-content: center; margin-bottom: 0; flex-wrap: wrap; }
-        .tab-btn {
-            background: transparent; margin: 0 2px; border-radius: 10px 10px 0 0;
-            border: 1px solid rgba(255,255,255,0.1); border-bottom: none; color: #bdc3c7;
-            padding: 10px 15px; font-size: 16px; box-shadow: none;
-        }
+        .tab-btn { background: transparent; margin: 0 2px; border-radius: 10px 10px 0 0; border: 1px solid rgba(255,255,255,0.1); border-bottom: none; color: #bdc3c7; padding: 10px 15px; font-size: 16px; box-shadow: none; }
         .tab-btn.active { background: rgba(255,255,255,0.1); color: #1abc9c; border-color: rgba(255,255,255,0.3); font-weight: bold; }
-        
         .tab-content { display: none; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; min-height: 300px; margin-top: -1px; border: 1px solid rgba(255,255,255,0.1); }
         .tab-content.active { display: block; animation: fadeIn 0.3s; }
-
-        /* History List Styles */
-        #history-list {
-            max-height: 400px;
-            overflow-y: auto;
-            text-align: left;
-        }
-        .history-item {
-            background: rgba(0,0,0,0.2);
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            border: 1px solid transparent;
-        }
+        #history-list { max-height: 400px; overflow-y: auto; text-align: left; }
+        .history-item { background: rgba(0,0,0,0.2); margin-bottom: 10px; padding: 15px; border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent; }
         .history-item:hover { background: rgba(0,0,0,0.3); border-color: #1abc9c; }
         .hist-title { font-size: 18px; font-weight: bold; color: #1abc9c; margin-bottom: 5px; }
         .hist-detail { font-size: 14px; color: #bdc3c7; }
-
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
         th { color: #1abc9c; }
         tr:last-child td { border-bottom: none; }
-
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
         .modal-content { background: #34495e; padding: 30px; border-radius: 15px; width: 350px; text-align: center; border: 2px solid #1abc9c; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -185,11 +66,10 @@
         <button onclick="setupGame('subtraction')">Subtraction</button>
         <button onclick="setupGame('multiplication')">Multiplication</button>
         <button onclick="setupGame('division')">Division</button>
-        <button onclick="setupGame('square')">Square</button>
+        <button onclick="setupGame('square')">Power</button>
         <button onclick="setupGame('percentage')">Percentage</button>
         <button onclick="setupGame('table')">Tables</button>
         <button onclick="setupGame('tableSum')">Table Sum</button>
-        
         <br><br>
         <button class="history-btn" onclick="showHistoryScreen()">📜 History & Progress</button>
     </div>
@@ -203,7 +83,7 @@
     </div>
 
     <div id="screen-game" style="display:none;">
-        <div id="step-indicator"></div>
+        <div id="q-counter">Question: 1 / 10</div> <div id="step-indicator"></div>
         <div id="question"></div>
         <input type="number" id="answer" autocomplete="off" oninput="checkInput(this)">
         <div id="result"></div>
@@ -213,47 +93,26 @@
 
     <div id="screen-result" style="display:none;">
         <h2 style="margin: 0 0 15px 0;">Performance</h2>
-        
         <div class="stats-row">
             <div class="stat-box"><h3>Total Time</h3><p id="res-time">0s</p></div>
             <div class="stat-box"><h3>Avg Time</h3><p id="res-avg">0s</p></div>
             <div class="stat-box"><h3>Accuracy</h3><p id="res-acc">100%</p></div>
+            <div class="stat-box"><h3>Total Q</h3><p id="res-total">0</p></div>
         </div>
-
         <button class="play-again-btn" onclick="restartGame()">PLAY AGAIN</button>
         <button class="main-menu-btn" onclick="showScreen('selection')">Main Menu</button>
-
         <div class="tab-container">
             <button class="tab-btn active" onclick="switchTab('tab-timing')">Timing</button>
             <button class="tab-btn" onclick="switchTab('tab-progress')">Progress</button>
             <button class="tab-btn" onclick="switchTab('tab-slow')">Slowest</button>
             <button class="tab-btn" onclick="switchTab('tab-mistakes')">Mistakes</button>
         </div>
-
-        <div id="tab-timing" class="tab-content active">
-            <canvas id="timingChart" style="max-height: 250px;"></canvas>
-            <p style="font-size:14px; color:#ddd; margin-top:10px;">Time per question (Current Game)</p>
-        </div>
-
-        <div id="tab-progress" class="tab-content">
-            <canvas id="historyChart" style="max-height: 250px;"></canvas>
-            <p style="font-size:14px; color:#ddd; margin-top:10px;">Total time history (All Games)</p>
-        </div>
-
-        <div id="tab-slow" class="tab-content">
-            <table id="slow-table"><thead><tr><th>Question</th><th>Time (s)</th></tr></thead><tbody></tbody></table>
-        </div>
-
-        <div id="tab-mistakes" class="tab-content">
-            <table id="mistakes-table"><thead><tr><th>Question</th><th>Correct Answer</th></tr></thead><tbody></tbody></table>
-            <p id="no-mistakes" style="display:none; color:#2ecc71; font-weight:bold; margin-top:20px;">Perfect Score!</p>
-        </div>
-
+        <div id="tab-timing" class="tab-content active"><canvas id="timingChart" style="max-height: 250px;"></canvas><p style="font-size:14px; color:#ddd; margin-top:10px;">Time per question (Current Game)</p></div>
+        <div id="tab-progress" class="tab-content"><canvas id="historyChart" style="max-height: 250px;"></canvas><p style="font-size:14px; color:#ddd; margin-top:10px;">Total time history (All Games)</p></div>
+        <div id="tab-slow" class="tab-content"><table id="slow-table"><thead><tr><th>Question</th><th>Time (s)</th></tr></thead><tbody></tbody></table></div>
+        <div id="tab-mistakes" class="tab-content"><table id="mistakes-table"><thead><tr><th>Question</th><th>Correct Answer</th></tr></thead><tbody></tbody></table><p id="no-mistakes" style="display:none; color:#2ecc71; font-weight:bold; margin-top:20px;">Perfect Score!</p></div>
         <h3 style="margin-top:30px; border-top:1px solid rgba(255,255,255,0.2); padding-top:10px;">Top 5 Leaderboard</h3>
-        <table id="leaderboard-table">
-            <thead><tr><th>Rank</th><th>Name</th><th>Time</th><th>Date</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <table id="leaderboard-table"><thead><tr><th>Rank</th><th>Name</th><th>Time</th><th>Date</th></tr></thead><tbody></tbody></table>
     </div>
 
     <div id="screen-history" style="display:none;">
@@ -267,11 +126,7 @@
     <div id="screen-history-detail" style="display:none;">
         <h2 id="hist-detail-title">Mode Details</h2>
         <p id="hist-detail-sub" style="color:#bdc3c7; font-size:14px; margin-bottom:20px;"></p>
-        
-        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; height: 300px; border: 1px solid rgba(255,255,255,0.1);">
-            <canvas id="detailChart"></canvas>
-        </div>
-        
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; height: 300px; border: 1px solid rgba(255,255,255,0.1);"><canvas id="detailChart"></canvas></div>
         <br>
         <button onclick="showScreen('history')" style="background:#7f8c8d;">Back to List</button>
     </div>
@@ -301,42 +156,82 @@
     let state = {
         gameType: '',
         settings: {},
-        questions: [],
+        questions: [], 
         results: [],
         currentIdx: 0,
         qStartTime: 0,
-        gameStartTime: 0
+        gameStartTime: 0,
+        targetCount: 0
     };
-    let chartInstance = null;
-    let historyChartInstance = null;
-    let detailChartInstance = null;
+    let chartInstance = null, historyChartInstance = null, detailChartInstance = null;
 
-    // --- WEIGHTS ---
+    // --- ADAPTIVE STORAGE MANAGERS ---
     function getWeights() { return JSON.parse(localStorage.getItem('mathWeights')) || {}; }
     function saveWeights(w) { localStorage.setItem('mathWeights', JSON.stringify(w)); }
-    function updateWeight(key, timeTaken) {
-        let w = getWeights();
-        let current = w[key] || 1;
-        let factor = timeTaken / 3.0; 
-        let newWeight = current * factor;
-        if(newWeight < 0.1) newWeight = 0.1;
-        if(newWeight > 20) newWeight = 20;
-        w[key] = newWeight;
-        saveWeights(w);
+    function getNumWeights() { return JSON.parse(localStorage.getItem('mathNumWeights')) || {}; }
+    function saveNumWeights(w) { localStorage.setItem('mathNumWeights', JSON.stringify(w)); }
+    
+    function getLastAvgTime(gameType) { 
+        let store = JSON.parse(localStorage.getItem('mathLastAvgMap')) || {};
+        return parseFloat(store[gameType]) || 3.0; 
+    }
+    function saveLastAvgTime(gameType, t) { 
+        let store = JSON.parse(localStorage.getItem('mathLastAvgMap')) || {};
+        store[gameType] = t;
+        localStorage.setItem('mathLastAvgMap', JSON.stringify(store)); 
     }
 
-    // --- NAVIGATION ---
+    // --- LOGIC: UPDATE WEIGHTS ---
+    function updateAdaptiveData(qObj, timeTaken, isCorrect) {
+        let targetTime = getLastAvgTime(state.gameType);
+        if(targetTime < 2.0) targetTime = 2.0;
+
+        let factor = 1.0;
+        if (!isCorrect) factor = 5.0; 
+        else {
+            factor = timeTaken / targetTime;
+            if(factor < 0.2) factor = 0.2;
+            if(factor > 3.0) factor = 3.0;
+        }
+
+        let w = getWeights();
+        let qKey = `${state.gameType}|${qObj.id}`; 
+        let currentW = w[qKey] || 1.0;
+        w[qKey] = currentW * factor;
+        if(w[qKey] < 0.1) w[qKey] = 0.1;
+        if(w[qKey] > 20) w[qKey] = 20;
+        saveWeights(w);
+
+        let nums = qObj.id.match(/\d+/g);
+        if(nums) {
+            let nw = getNumWeights();
+            nums.forEach(nStr => {
+                let nKey = `${state.gameType}|n_${nStr}`;
+                let cur = nw[nKey] || 1.0;
+                let numFactor = Math.sqrt(factor); 
+                nw[nKey] = cur * numFactor;
+                if(nw[nKey] < 0.5) nw[nKey] = 0.5;
+                if(nw[nKey] > 10) nw[nKey] = 10;
+            });
+            if(qObj.a) {
+                let ansKey = `${state.gameType}|n_${Math.floor(qObj.a)}`;
+                let cur = nw[ansKey] || 1.0;
+                nw[ansKey] = cur * Math.sqrt(factor);
+                saveNumWeights(nw);
+            }
+        }
+    }
+
+    // --- SCREEN MGMT ---
     function showScreen(id) {
         document.querySelectorAll('#game-container > div').forEach(d => d.style.display = 'none');
         document.getElementById(`screen-${id}`).style.display = 'block';
     }
-
     function switchTab(tabId) {
         play('click');
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        
         const btns = document.querySelectorAll('.tab-btn');
         if(tabId === 'tab-timing') btns[0].classList.add('active');
         if(tabId === 'tab-progress') btns[1].classList.add('active');
@@ -358,12 +253,13 @@
         const num = (id, lbl, val) => `<div style="margin:10px;"><label>${lbl}: <br><input type="number" id="${id}" value="${val}"></label></div>`;
         const chk = (id, lbl, val) => `<label class="chk-container"><input type="checkbox" id="${id}" ${val?'checked':''}><span>${lbl}</span></label>`;
 
-        let html = '';
         const defMin = s.min || 2;
         const defMax = s.max || 20;
         const defCount = s.count || 10;
         
-        html += chk('adaptable', 'Adaptable Mode', s.adaptable) + '<br>';
+        // FIX: Default to TRUE if undefined, else use saved value
+        let adaptState = (s.adaptable !== undefined) ? s.adaptable : true;
+        let html = chk('adaptable', 'Adaptable Mode', adaptState) + '<br>';
 
         if (type === 'table') {
             html += `<p style="font-size:20px; color:#eee;">Select Ranges:</p><div style="text-align:left; display:inline-block;">`;
@@ -386,172 +282,144 @@
             if(type === 'percentage') html += `<div style="margin:10px;"><label>Difficulty: <br><select id="diff" style="font-size:20px; padding:5px;"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label></div>`;
             html += num('count', 'Questions', defCount);
         }
-
         div.innerHTML = html;
         if(s.power && document.getElementById('power')) document.getElementById('power').value = s.power;
         if(s.diff && document.getElementById('diff')) document.getElementById('diff').value = s.diff;
-        
         showScreen('settings');
     }
 
-    // --- HISTORY FUNCTIONS ---
-    function showHistoryScreen() {
-        play('click');
-        const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
-        const listDiv = document.getElementById('history-list');
-        listDiv.innerHTML = '';
-
-        if(history.length === 0) {
-            listDiv.innerHTML = '<p>No games played yet.</p>';
-            showScreen('history');
-            return;
+    // --- HYBRID GENERATION LOGIC ---
+    function generateSingleQuestion(index) {
+        let s = state.settings;
+        
+        if(state.gameType === 'tableSum') {
+            if(state.questions[index]) return state.questions[index];
+            return null;
         }
 
-        // Group by Signature
-        let groups = {};
-        history.forEach(h => {
-            if(!groups[h.sig]) {
-                groups[h.sig] = {
-                    sig: h.sig,
-                    data: JSON.parse(h.sig),
-                    count: 0,
-                    lastPlayed: 0,
-                    bestTime: Infinity
-                };
+        let adapt = s.adaptable;
+        let qObj = null;
+
+        // "Heavy" Turn Logic (Even Indices)
+        if (adapt && index % 2 === 0) {
+            let historyCandidates = getHeavyCandidatesFromStorage(s);
+            let currentCandidates = getHeavyCandidatesFromSession(s);
+            let pickCurrent = (Math.random() < 0.3); 
+
+            if (pickCurrent && currentCandidates.length > 0) {
+                let key = currentCandidates[Math.floor(Math.random()*currentCandidates.length)]; 
+                qObj = reconstructQuestion(key);
             }
-            let g = groups[h.sig];
-            g.count++;
-            if(h.date > g.lastPlayed) g.lastPlayed = h.date;
-            if(h.time < g.bestTime) g.bestTime = h.time;
-        });
+            if (!qObj && historyCandidates.length > 0) {
+                let fullKey = historyCandidates[0]; 
+                let key = fullKey.replace(state.gameType + "|", ""); 
+                qObj = reconstructQuestion(key);
+            }
+            if (!qObj && currentCandidates.length > 0) {
+                let key = currentCandidates[Math.floor(Math.random()*currentCandidates.length)];
+                qObj = reconstructQuestion(key);
+            }
+        }
 
-        // Convert to array and sort by last played
-        let groupArr = Object.values(groups).sort((a,b) => b.lastPlayed - a.lastPlayed);
-
-        groupArr.forEach(g => {
-            let t = g.data.t; // type
-            let s = g.data.s; // settings
-            
-            // Format Description
-            let desc = `${t.charAt(0).toUpperCase() + t.slice(1)}`;
-            if(t === 'table') desc += ` (Range: ${s.ranges.join(',')})`;
-            else if(t === 'tableSum') desc += ` (Min: ${s.min}, Max: ${s.max})`;
-            else desc += ` (Min: ${s.min}, Max: ${s.max})`;
-            
-            if(s.adaptable) desc += " [Adaptable]";
-
-            let dateStr = new Date(g.lastPlayed).toLocaleDateString();
-
-            let el = document.createElement('div');
-            el.className = 'history-item';
-            el.innerHTML = `
-                <div class="hist-title">${desc}</div>
-                <div class="hist-detail">Played: ${g.count} times | Last: ${dateStr} | Best: ${g.bestTime.toFixed(1)}s</div>
-            `;
-            el.onclick = () => showHistoryDetail(g.sig, desc);
-            listDiv.appendChild(el);
-        });
-
-        showScreen('history');
+        // Random fallback
+        if(!qObj) qObj = generateRandomQuestion(s, getWeightedRandomNumber);
+        return qObj;
     }
 
-    function showHistoryDetail(sig, title) {
-        play('click');
-        const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
-        const filtered = history.filter(h => h.sig === sig).sort((a,b) => a.date - b.date);
-
-        document.getElementById('hist-detail-title').innerText = title;
-        document.getElementById('hist-detail-sub').innerText = `Total Games: ${filtered.length}`;
-
-        showScreen('history-detail');
-
-        const ctx = document.getElementById('detailChart').getContext('2d');
-        if(detailChartInstance) detailChartInstance.destroy();
-
-        detailChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: filtered.map((_, i) => i+1),
-                datasets: [{ 
-                    label: 'Total Time (s)', 
-                    data: filtered.map(d => d.time), 
-                    borderColor: '#f1c40f',
-                    backgroundColor: 'rgba(241, 196, 15, 0.2)',
-                    fill: true,
-                    tension: 0.2
-                }]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                scales: { 
-                    x:{ ticks: { color: '#bdc3c7' } }, 
-                    y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}, ticks:{ color: '#bdc3c7' } } 
-                }, 
-                plugins:{ legend:{display:false} } 
+    function getHeavyCandidatesFromStorage(s) {
+        let weights = getWeights();
+        let candidates = [];
+        let prefix = state.gameType + "|";
+        Object.keys(weights).forEach(k => {
+            if(k.startsWith(prefix) && weights[k] > 1.2) {
+                if (state.gameType === 'square') {
+                    let content = k.split('|')[1];
+                    if (content.includes('^')) {
+                        let parts = content.split('^');
+                        if (parts.length > 1) {
+                            let pStr = parts[1].trim().split(' ')[0];
+                            if (parseInt(pStr) === s.power) candidates.push(k);
+                        }
+                    }
+                } else if (state.gameType === 'addition') {
+                    if(!k.includes('^')) candidates.push(k);
+                } else {
+                    candidates.push(k);
+                }
             }
         });
+        candidates.sort((a,b) => weights[b] - weights[a]);
+        return candidates;
     }
 
-    // --- GAME LOGIC ---
-    function generateQuestions(s) {
+    function getHeavyCandidatesFromSession(s) {
+        let candidates = [];
+        let targetTime = getLastAvgTime(state.gameType);
+        state.results.forEach(res => {
+            let isHard = (!res.correct) || (res.time > targetTime * 1.2);
+            if (isHard) {
+                let valid = true;
+                if (state.gameType === 'square') {
+                    if (!res.q.includes(`^${s.power}`)) valid = false;
+                }
+                if (valid) candidates.push(res.q);
+            }
+        });
+        return candidates; 
+    }
+
+    function reconstructQuestion(key) {
+        let qObj = null;
+        try {
+            qObj = { q: key, id: key }; 
+            if(key.includes('+') && !key.includes('^')) { qObj.a = key.split(' + ').reduce((a,b)=>parseFloat(a)+parseFloat(b),0); }
+            else if(key.includes('-')) { let [a,b]=key.split(' - '); qObj.a = a-b; }
+            else if(key.includes('×')) { let [a,b]=key.split(' × '); qObj.a = a*b; }
+            else if(key.includes('÷')) { let [n1,n2]=key.split(' ÷ '); qObj.a = n1/n2; } 
+            else if(key.includes('^')) { 
+                let [b,r]=key.split('^'); 
+                let [p,a]=r.split(' + '); 
+                qObj.a = Math.pow(parseInt(b), parseInt(p)) + parseInt(a); 
+            }
+        } catch(e) { return null; }
+        return qObj;
+    }
+
+    // Helper: Weighted Random Number (Scoped)
+    function getWeightedRandomNumber(min, max) {
+        let numWeights = getNumWeights();
+        if (Math.random() < 0.3) { 
+            let heavy = [];
+            for(let i=min; i<=max; i++) {
+                let nKey = `${state.gameType}|n_${i}`;
+                if(numWeights[nKey] > 1.5) heavy.push(i);
+            }
+            if(heavy.length > 0) return heavy[Math.floor(Math.random() * heavy.length)];
+        }
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateTableSumFullBatch(s) {
         let result = [];
         let adapt = s.adaptable;
-        let weights = getWeights(); 
-
-        if(state.gameType === 'tableSum') {
-            let pool = [];
-            for(let i=s.min; i<=s.max; i++) pool.push(i);
-            if(adapt) {
-                pool.sort((a,b) => (weights[`Sum_${b}`]||1) - (weights[`Sum_${a}`]||1));
-                let heavyCount = Math.floor(s.count / 2);
-                let bases = [...pool.slice(0, heavyCount)];
-                let fullRandom = [...pool].sort(()=>Math.random()-0.5);
-                for(let k=0; k<(s.count-heavyCount); k++) bases.push(fullRandom[k%fullRandom.length]);
-                bases.sort(() => Math.random() - 0.5);
-                return generateTableSumFromBases(bases, s);
-            } else {
-                let bases = [];
-                let p = [...pool].sort(()=>Math.random()-0.5);
-                for(let i=0; i<s.count; i++) bases.push(p[i % p.length]);
-                return generateTableSumFromBases(bases, s);
-            }
-        }
+        let weights = getWeights();
+        let pool = [];
+        for(let i=s.min; i<=s.max; i++) pool.push(i);
         
-        let heavyCandidates = [];
         if(adapt) {
-            Object.keys(weights).forEach(k => {
-                if(weights[k] > 1.2) { 
-                    if(state.gameType === 'multiplication' && k.includes('×')) heavyCandidates.push(k);
-                    if(state.gameType === 'addition' && k.includes('+')) heavyCandidates.push(k);
-                    if(state.gameType === 'subtraction' && k.includes('-')) heavyCandidates.push(k);
-                    if(state.gameType === 'division' && k.includes('÷')) heavyCandidates.push(k);
-                    if(state.gameType === 'square' && k.includes('^')) heavyCandidates.push(k);
-                }
-            });
-            heavyCandidates.sort((a,b) => weights[b] - weights[a]);
+            pool.sort((a,b) => (weights[`${state.gameType}|Sum_${b}`]||1) - (weights[`${state.gameType}|Sum_${a}`]||1));
+            let heavyCount = Math.floor(s.count / 2);
+            let bases = [...pool.slice(0, heavyCount)];
+            let fullRandom = [...pool].sort(()=>Math.random()-0.5);
+            for(let k=0; k<(s.count-heavyCount); k++) bases.push(fullRandom[k%fullRandom.length]);
+            bases.sort(() => Math.random() - 0.5);
+            return generateTableSumFromBases(bases, s);
+        } else {
+            let bases = [];
+            let p = [...pool].sort(()=>Math.random()-0.5);
+            for(let i=0; i<s.count; i++) bases.push(p[i % p.length]);
+            return generateTableSumFromBases(bases, s);
         }
-
-        for(let i=0; i<s.count; i++) {
-            let qObj = null;
-            let useHeavy = adapt && (i % 2 === 0) && (heavyCandidates.length > 0);
-            if(useHeavy) {
-                let key = heavyCandidates.shift();
-                if(key) {
-                    try {
-                        qObj = { q: key, id: key }; 
-                        if(key.includes('+')) { qObj.a = key.split(' + ').reduce((a,b)=>parseFloat(a)+parseFloat(b),0); }
-                        else if(key.includes('-')) { let [a,b]=key.split(' - '); qObj.a = a-b; }
-                        else if(key.includes('×')) { let [a,b]=key.split(' × '); qObj.a = a*b; }
-                        else if(key.includes('÷')) { let [n1,n2]=key.split(' ÷ '); qObj.a = n1/n2; } 
-                        else if(key.includes('^')) { let [b,r]=key.split('^'); let [p,a]=r.split(' + '); qObj.a = Math.pow(b,p)+parseInt(a); }
-                    } catch(e) { qObj = null; }
-                }
-            }
-            if(!qObj) qObj = generateRandomQuestion(s);
-            result.push(qObj);
-        }
-        return result;
     }
 
     function generateTableSumFromBases(bases, s) {
@@ -568,28 +436,30 @@
         return res;
     }
 
-    function generateRandomQuestion(s) {
-        let n1 = Math.floor(Math.random()*(s.max-s.min+1))+s.min;
-        let n2 = Math.floor(Math.random()*(s.max-s.min+1))+s.min;
+    function generateRandomQuestion(s, rngFunc) {
+        const getNum = (min, max) => s.adaptable ? rngFunc(min, max) : Math.floor(Math.random()*(max-min+1))+min;
+        let n1 = getNum(s.min, s.max);
+        let n2 = getNum(s.min, s.max);
         let qObj = {};
         
         switch(state.gameType) {
             case 'addition':
+                let count = s.qty || 2; 
                 let nums = [n1]; let sum = n1;
-                for(let k=1; k<s.qty; k++) { let r=Math.floor(Math.random()*(s.max-s.min+1))+s.min; nums.push(r); sum+=r; }
+                for(let k=1; k < count; k++) { let r = getNum(s.min, s.max); nums.push(r); sum += r; }
                 qObj.q = nums.join(" + "); qObj.a = sum; break;
             case 'subtraction':
                 if(n2>n1) [n1,n2] = [n2,n1]; qObj.q = `${n1} - ${n2}`; qObj.a = n1-n2; break;
             case 'multiplication':
                 qObj.q = `${n1} × ${n2}`; qObj.a = n1*n2; break;
             case 'division':
-                if(n1===0) n1=1; let ans = Math.floor(Math.random()*(s.max-s.min+1))+s.min;
-                let div = n1 * ans; qObj.q = `${div} ÷ ${n1}`; qObj.a = ans; break;
+                if(n1===0) n1=1; let ans = getNum(s.min, s.max); let div = n1 * ans; qObj.q = `${div} ÷ ${n1}`; qObj.a = ans; break;
             case 'square':
-                let add = Math.floor(Math.random()*20)+1; qObj.q = `${n1}^${s.power} + ${add}`; qObj.a = Math.pow(n1, s.power)+add; break;
+                let p = s.power || 2; let add = Math.floor(Math.random()*20)+1; 
+                qObj.q = `${n1}^${p} + ${add}`; qObj.a = Math.pow(n1, p) + add; break;
             case 'percentage':
-                let p = (s.diff==='easy') ? (Math.floor(Math.random()*19)+1)*5 : Math.floor(Math.random()*99)+1;
-                qObj.q = `${p}% of ${n1}`; qObj.a = (p/100)*n1; break;
+                let pct = (s.diff==='easy') ? (Math.floor(Math.random()*19)+1)*5 : Math.floor(Math.random()*99)+1;
+                qObj.q = `${pct}% of ${n1}`; qObj.a = (pct/100)*n1; break;
             case 'table':
                 let rng = s.ranges[Math.floor(Math.random()*s.ranges.length)];
                 let t = Math.floor(Math.random()*10)+(rng-9); let m = Math.floor(Math.random()*9)+2;
@@ -603,14 +473,10 @@
         play('click');
         let s = {};
         const getVal = (id) => document.getElementById(id) ? parseInt(document.getElementById(id).value) : 0;
-        
-        s.min = getVal('min');
-        s.max = getVal('max');
-        s.count = getVal('count');
-        s.adaptable = document.getElementById('adaptable').checked;
+        s.min = getVal('min'); s.max = getVal('max'); s.count = getVal('count'); s.adaptable = document.getElementById('adaptable').checked;
 
         if(state.gameType === 'addition') s.qty = getVal('qty');
-        if(state.gameType === 'square') s.power = getVal('power');
+        if(state.gameType === 'square') s.power = parseInt(document.getElementById('power').value);
         if(state.gameType === 'percentage') s.diff = document.getElementById('diff').value;
         if(state.gameType === 'tableSum') s.showSum = document.getElementById('showSum').checked;
         if(state.gameType === 'table') {
@@ -622,30 +488,34 @@
 
         saveSettings(state.gameType, s);
         state.settings = s;
-        state.questions = generateQuestions(s);
+        state.targetCount = s.count;
         state.results = [];
         state.currentIdx = 0;
+        state.questions = [];
+
+        if(state.gameType === 'tableSum') {
+            state.questions = generateTableSumFullBatch(s);
+            state.targetCount = state.questions.length;
+        } else {
+            state.questions.push(generateSingleQuestion(0));
+        }
+
         state.gameStartTime = Date.now();
         showScreen('game');
         renderQuestion();
     }
 
     function renderQuestion() {
-        if(state.currentIdx >= state.questions.length) return finishGame();
         let q = state.questions[state.currentIdx];
-        
         const ind = document.getElementById('step-indicator');
-        if(state.gameType === 'tableSum' && q.step) {
-            ind.style.visibility = 'visible';
-            ind.innerText = `Step ${q.step} / 10`;
-        } else {
-            ind.style.visibility = 'hidden';
-        }
-
+        
+        // NEW COUNTER LOGIC
+        document.getElementById('q-counter').innerText = `Question: ${state.currentIdx + 1} / ${state.targetCount}`;
+        
+        if(state.gameType === 'tableSum' && q.step) { ind.style.visibility = 'visible'; ind.innerText = `Step ${q.step} / 10`; }
+        else { ind.style.visibility = 'hidden'; }
         document.getElementById('question').innerText = q.q + " = ?";
-        let inp = document.getElementById('answer');
-        inp.value = '';
-        inp.focus();
+        let inp = document.getElementById('answer'); inp.value = ''; inp.focus();
         document.getElementById('result').innerText = '';
         state.qStartTime = Date.now();
     }
@@ -661,18 +531,27 @@
             if(Math.abs(val - q.a) < 0.01) {
                 play('success');
                 document.getElementById('result').innerHTML = '<span style="color:#2ecc71">Correct!</span>';
-                if(state.settings.adaptable) updateWeight(q.id, timeTaken);
+                if(state.settings.adaptable) updateAdaptiveData(q, timeTaken, true);
                 state.results.push({ q: q.q, a: q.a, uAns: val, correct: true, time: timeTaken });
-                state.currentIdx++;
-                setTimeout(renderQuestion, 200);
+                nextTurn();
             } else {
                 play('wrong');
                 document.getElementById('result').innerHTML = '<span style="color:#e74c3c">Wrong!</span>';
-                if(state.settings.adaptable) updateWeight(q.id, 10);
+                if(state.settings.adaptable) updateAdaptiveData(q, timeTaken, false);
                 state.results.push({ q: q.q, a: q.a, uAns: val, correct: false, time: timeTaken });
                 elm.value = '';
             }
         }
+    }
+
+    function nextTurn() {
+        state.currentIdx++;
+        if (state.currentIdx >= state.targetCount) { finishGame(); return; }
+        if(state.gameType !== 'tableSum') {
+            let nextQ = generateSingleQuestion(state.currentIdx);
+            state.questions.push(nextQ);
+        }
+        setTimeout(renderQuestion, 200);
     }
     
     function endGameEarly() { if(confirm("Exit?")) showScreen('selection'); }
@@ -681,24 +560,27 @@
         play('over');
         let totalTime = (Date.now() - state.gameStartTime) / 1000;
         let mistakesCount = state.results.filter(r => !r.correct).length;
-        let accuracy = (state.questions.length / (state.questions.length + mistakesCount)) * 100;
-        let avgTime = totalTime / state.questions.length;
+        let accuracy = (state.results.length === 0) ? 0 : (state.targetCount / (state.targetCount + mistakesCount)) * 100;
+        let avgTime = totalTime / state.targetCount;
+
+        let prevAvg = getLastAvgTime(state.gameType);
+        let newAvg = (prevAvg + avgTime) / 2;
+        saveLastAvgTime(state.gameType, newAvg);
 
         document.getElementById('res-time').innerText = totalTime.toFixed(1) + 's';
         document.getElementById('res-avg').innerText = avgTime.toFixed(2) + 's';
         document.getElementById('res-acc').innerText = accuracy.toFixed(0) + '%';
+        document.getElementById('res-total').innerText = state.targetCount;
 
         let successResults = state.results.filter(r => r.correct);
         renderTimingChart(successResults);
 
-        // Slow Table
         let slowTbody = document.querySelector('#slow-table tbody');
         slowTbody.innerHTML = '';
         [...successResults].sort((a,b) => b.time - a.time).slice(0, 5).forEach(r => {
             slowTbody.innerHTML += `<tr><td>${r.q}</td><td>${r.time.toFixed(2)}s</td></tr>`;
         });
 
-        // Mistakes Table
         let missTbody = document.querySelector('#mistakes-table tbody');
         missTbody.innerHTML = '';
         let failures = state.results.filter(r => !r.correct);
@@ -769,24 +651,56 @@
             type: 'line',
             data: {
                 labels: data.map((_, i) => i+1),
-                datasets: [{ 
-                    label: 'Total Time (s)', 
-                    data: data.map(d => d.time), 
-                    borderColor: '#f1c40f',
-                    backgroundColor: 'rgba(241, 196, 15, 0.2)',
-                    fill: true,
-                    tension: 0.2
-                }]
+                datasets: [{ label: 'Total Time (s)', data: data.map(d => d.time), borderColor: '#f1c40f', backgroundColor: 'rgba(241, 196, 15, 0.2)', fill: true, tension: 0.2 }]
             },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                scales: { 
-                    x:{ ticks: { color: '#bdc3c7' } }, 
-                    y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}, ticks:{ color: '#bdc3c7' } } 
-                }, 
-                plugins:{ legend:{display:false} } 
-            }
+            options: { responsive: true, maintainAspectRatio: false, scales: { x:{ ticks: { color: '#bdc3c7' } }, y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}, ticks:{ color: '#bdc3c7' } } }, plugins:{ legend:{display:false} } }
+        });
+    }
+
+    function showHistoryScreen() {
+        play('click');
+        const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
+        const listDiv = document.getElementById('history-list');
+        listDiv.innerHTML = '';
+        if(history.length === 0) { listDiv.innerHTML = '<p>No games played yet.</p>'; showScreen('history'); return; }
+        let groups = {};
+        history.forEach(h => {
+            if(!groups[h.sig]) groups[h.sig] = { sig: h.sig, data: JSON.parse(h.sig), count: 0, lastPlayed: 0, bestTime: Infinity };
+            let g = groups[h.sig];
+            g.count++;
+            if(h.date > g.lastPlayed) g.lastPlayed = h.date;
+            if(h.time < g.bestTime) g.bestTime = h.time;
+        });
+        let groupArr = Object.values(groups).sort((a,b) => b.lastPlayed - a.lastPlayed);
+        groupArr.forEach(g => {
+            let t = g.data.t; let s = g.data.s; 
+            let desc = `${t.charAt(0).toUpperCase() + t.slice(1)}`;
+            if(t === 'table') desc += ` (Range: ${s.ranges.join(',')})`;
+            else if(t === 'tableSum') desc += ` (Min: ${s.min}, Max: ${s.max})`;
+            else desc += ` (Min: ${s.min}, Max: ${s.max})`;
+            if(s.adaptable) desc += " [Adaptable]";
+            let dateStr = new Date(g.lastPlayed).toLocaleDateString();
+            let el = document.createElement('div'); el.className = 'history-item';
+            el.innerHTML = `<div class="hist-title">${desc}</div><div class="hist-detail">Played: ${g.count} times | Last: ${dateStr} | Best: ${g.bestTime.toFixed(1)}s</div>`;
+            el.onclick = () => showHistoryDetail(g.sig, desc);
+            listDiv.appendChild(el);
+        });
+        showScreen('history');
+    }
+
+    function showHistoryDetail(sig, title) {
+        play('click');
+        const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
+        const filtered = history.filter(h => h.sig === sig).sort((a,b) => a.date - b.date);
+        document.getElementById('hist-detail-title').innerText = title;
+        document.getElementById('hist-detail-sub').innerText = `Total Games: ${filtered.length}`;
+        showScreen('history-detail');
+        const ctx = document.getElementById('detailChart').getContext('2d');
+        if(detailChartInstance) detailChartInstance.destroy();
+        detailChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: filtered.map((_, i) => i+1), datasets: [{ label: 'Total Time (s)', data: filtered.map(d => d.time), borderColor: '#f1c40f', backgroundColor: 'rgba(241, 196, 15, 0.2)', fill: true, tension: 0.2 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x:{ ticks: { color: '#bdc3c7' } }, y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,0.1)'}, ticks:{ color: '#bdc3c7' } } }, plugins:{ legend:{display:false} } }
         });
     }
 
@@ -803,4 +717,3 @@
 </script>
 </body>
 </html>
-
