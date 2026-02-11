@@ -24,10 +24,7 @@
         .chk-container:hover { background: rgba(0,0,0,0.2); }
         .chk-container input { width: 20px; height: 20px; vertical-align: middle; margin-right: 10px; }
         .chk-container span { vertical-align: middle; font-size: 18px; font-weight: bold; }
-        
-        /* New Counter Style */
         #q-counter { font-size: 18px; color: #ecf0f1; margin-bottom: 5px; opacity: 0.8; }
-        
         #step-indicator { font-size: 24px; color: #f1c40f; font-weight: bold; margin-bottom: 5px; height: 30px; }
         #question { font-size: 22px; font-weight: bold; margin: 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
         #result { height: 30px; font-size: 22px; font-weight: bold; margin-top: 10px; }
@@ -83,7 +80,8 @@
     </div>
 
     <div id="screen-game" style="display:none;">
-        <div id="q-counter">Question: 1 / 10</div> <div id="step-indicator"></div>
+        <div id="q-counter">Question: 1 / 10</div>
+        <div id="step-indicator"></div>
         <div id="question"></div>
         <input type="number" id="answer" autocomplete="off" oninput="checkInput(this)">
         <div id="result"></div>
@@ -158,6 +156,7 @@
         settings: {},
         questions: [], 
         results: [],
+        recentIds: [], 
         currentIdx: 0,
         qStartTime: 0,
         gameStartTime: 0,
@@ -257,7 +256,7 @@
         const defMax = s.max || 20;
         const defCount = s.count || 10;
         
-        // FIX: Default to TRUE if undefined, else use saved value
+        // FIX: Default to TRUE
         let adaptState = (s.adaptable !== undefined) ? s.adaptable : true;
         let html = chk('adaptable', 'Adaptable Mode', adaptState) + '<br>';
 
@@ -306,23 +305,46 @@
             let currentCandidates = getHeavyCandidatesFromSession(s);
             let pickCurrent = (Math.random() < 0.3); 
 
+            // Try picking from current session
             if (pickCurrent && currentCandidates.length > 0) {
-                let key = currentCandidates[Math.floor(Math.random()*currentCandidates.length)]; 
-                qObj = reconstructQuestion(key);
+                // Filter out RECENT questions
+                let valid = currentCandidates.filter(k => !state.recentIds.includes(k));
+                if(valid.length > 0) {
+                    let key = valid[Math.floor(Math.random()*valid.length)]; 
+                    qObj = reconstructQuestion(key);
+                }
             }
+            
+            // Try picking from history
             if (!qObj && historyCandidates.length > 0) {
-                let fullKey = historyCandidates[0]; 
-                let key = fullKey.replace(state.gameType + "|", ""); 
-                qObj = reconstructQuestion(key);
+                for(let fullKey of historyCandidates) {
+                    let key = fullKey.replace(state.gameType + "|", ""); 
+                    if(!state.recentIds.includes(key)) {
+                        qObj = reconstructQuestion(key);
+                        break; 
+                    }
+                }
             }
+            
+            // Fallback to Current
             if (!qObj && currentCandidates.length > 0) {
-                let key = currentCandidates[Math.floor(Math.random()*currentCandidates.length)];
-                qObj = reconstructQuestion(key);
+                let valid = currentCandidates.filter(k => !state.recentIds.includes(k));
+                if(valid.length > 0) {
+                    let key = valid[Math.floor(Math.random()*valid.length)];
+                    qObj = reconstructQuestion(key);
+                }
             }
         }
 
         // Random fallback
         if(!qObj) qObj = generateRandomQuestion(s, getWeightedRandomNumber);
+        
+        // Add to recent list with 7 item cooldown
+        if(qObj) {
+            state.recentIds.push(qObj.id);
+            if(state.recentIds.length > 7) state.recentIds.shift(); // CHANGED FROM 4 TO 7
+        }
+        
         return qObj;
     }
 
@@ -490,6 +512,7 @@
         state.settings = s;
         state.targetCount = s.count;
         state.results = [];
+        state.recentIds = []; // RESET RECENT ON START
         state.currentIdx = 0;
         state.questions = [];
 
@@ -508,10 +531,7 @@
     function renderQuestion() {
         let q = state.questions[state.currentIdx];
         const ind = document.getElementById('step-indicator');
-        
-        // NEW COUNTER LOGIC
         document.getElementById('q-counter').innerText = `Question: ${state.currentIdx + 1} / ${state.targetCount}`;
-        
         if(state.gameType === 'tableSum' && q.step) { ind.style.visibility = 'visible'; ind.innerText = `Step ${q.step} / 10`; }
         else { ind.style.visibility = 'hidden'; }
         document.getElementById('question').innerText = q.q + " = ?";
@@ -717,3 +737,4 @@
 </script>
 </body>
 </html>
+
