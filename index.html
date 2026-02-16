@@ -260,31 +260,24 @@
     }
 
     // --- HELPER: NORMALIZE HISTORY SIGNATURE ---
-    // Fixes old games and ensures strict saving for new ones
     function normalizeSig(rawSig) {
         try {
             let obj = JSON.parse(rawSig);
             let s = obj.s;
             let t = obj.t;
             
-            // 1. Strict Rule: Remove 'allValues' from modes where it is NOT used
-            // Modes that use it: table, tableSum, square
             const useAllValues = ['table', 'tableSum', 'square'];
             if (!useAllValues.includes(t)) {
                 delete s.allValues; 
             } else {
-                // If it IS used, ensure it exists for backward compatibility
                 if (s.allValues === undefined) s.allValues = false; 
             }
 
-            // Defaults for older saves
             if (s.adaptable === undefined) s.adaptable = true; 
             if (s.qty === undefined && t === 'addition') s.qty = 2;
             
-            // 2. Sort keys to ensure consistent signature
             let sortedS = {};
             Object.keys(s).sort().forEach(k => sortedS[k] = s[k]);
-            
             return JSON.stringify({t: t, s: sortedS});
         } catch(e) { return rawSig; }
     }
@@ -539,7 +532,6 @@
         s.count = getVal('count');
         s.adaptable = getChk('adaptable');
         
-        // Strict: Only read allValues if game supports it
         if(['table', 'tableSum', 'square'].includes(state.gameType)) {
             s.allValues = getChk('allValues');
         }
@@ -611,13 +603,28 @@
         state.qStartTime = Date.now();
     }
 
+    // --- FIX: UPDATED CHECK INPUT LOGIC ---
     function checkInput(elm) {
         if(!elm.value) return;
         let val = parseFloat(elm.value);
         let q = state.questions[state.currentIdx];
-        if(elm.value.length >= q.a.toString().length) {
+        
+        // Strict length check for integers, smart value check for floats
+        let isFloat = !Number.isInteger(q.a);
+        let shouldCheck = false;
+
+        if (isFloat) {
+            // For decimals: Check if user value is >= correct answer OR length matches
+            if (val >= q.a) shouldCheck = true; 
+        } else {
+            // For integers: Standard length check
+            if (elm.value.length >= q.a.toString().length) shouldCheck = true;
+        }
+        
+        if (shouldCheck) {
             let timeTaken = (Date.now() - state.qStartTime) / 1000;
-            if(Math.abs(val - q.a) < 0.01) {
+            // Float precision fix
+            if(Math.abs(val - q.a) < 0.001) {
                 play('success');
                 document.getElementById('result').innerHTML = '<span style="color:#2ecc71">Correct!</span>';
                 updateAdaptiveData(q, timeTaken, true);
@@ -788,19 +795,16 @@
         document.getElementById('hist-detail-title').innerText = title;
         document.getElementById('hist-detail-sub').innerText = `Total Games: ${filtered.length}`;
         
-        // --- NEW: DISPLAY SETTINGS BOX ---
-        // We parse the normalized sig to get the clean settings
         let settingsObj = JSON.parse(targetSig).s;
         let boxHtml = `<div style="margin-bottom:10px; font-weight:bold; color:#f1c40f;">Configuration Details:</div>`;
         
-        // Helper to format keys like "min1" to "Min 1" or "showSum" to "Show Sum"
         const formatKey = (k) => k.replace(/([A-Z0-9])/g, ' $1').replace(/^./, str => str.toUpperCase());
 
         for (let key in settingsObj) {
             let val = settingsObj[key];
             if (val === true) val = "Yes";
             if (val === false) val = "No";
-            if (key === 'ranges') val = val.join(', '); // Handle array
+            if (key === 'ranges') val = val.join(', ');
             
             boxHtml += `<span><b>${formatKey(key)}:</b> ${val}</span>`;
         }
