@@ -532,6 +532,7 @@
         s.count = getVal('count');
         s.adaptable = getChk('adaptable');
         
+        // Strict: Only read allValues if game supports it
         if(['table', 'tableSum', 'square'].includes(state.gameType)) {
             s.allValues = getChk('allValues');
         }
@@ -603,41 +604,49 @@
         state.qStartTime = Date.now();
     }
 
-    // --- FIX: UPDATED CHECK INPUT LOGIC ---
+    // --- NEW SMART INPUT CHECKER ---
     function checkInput(elm) {
         if(!elm.value) return;
         let val = parseFloat(elm.value);
         let q = state.questions[state.currentIdx];
+        let correct = q.a;
         
-        // Strict length check for integers, smart value check for floats
-        let isFloat = !Number.isInteger(q.a);
-        let shouldCheck = false;
+        // 1. Exact Match (Success)
+        if (Math.abs(val - correct) < 0.0001) {
+            play('success');
+            document.getElementById('result').innerHTML = '<span style="color:#2ecc71">Correct!</span>';
+            updateAdaptiveData(q, (Date.now() - state.qStartTime) / 1000, true);
+            state.results.push({ q: q.q, a: q.a, uAns: val, correct: true, time: (Date.now() - state.qStartTime)/1000 });
+            nextTurn();
+            return;
+        }
 
-        if (isFloat) {
-            // For decimals: Check if user value is >= correct answer OR length matches
-            if (val >= q.a) shouldCheck = true; 
-        } else {
-            // For integers: Standard length check
-            if (elm.value.length >= q.a.toString().length) shouldCheck = true;
+        // 2. Overshoot (Fail) - User typed number strictly larger than answer
+        // Note: Check length to ensure we aren't mid-typing (e.g. answer 12, user types 1... 1 < 12)
+        if (val > correct + 0.0001) {
+             handleWrong(elm, val, q);
+             return;
         }
+
+        // 3. Length Match (Fail) - User typed enough digits but it's not correct (caught by Step 1)
+        // We accept standard string length OR if user omits leading zero (e.g. .5 for 0.5)
+        let targetLen = correct.toString().length;
         
-        if (shouldCheck) {
-            let timeTaken = (Date.now() - state.qStartTime) / 1000;
-            // Float precision fix
-            if(Math.abs(val - q.a) < 0.001) {
-                play('success');
-                document.getElementById('result').innerHTML = '<span style="color:#2ecc71">Correct!</span>';
-                updateAdaptiveData(q, timeTaken, true);
-                state.results.push({ q: q.q, a: q.a, uAns: val, correct: true, time: timeTaken });
-                nextTurn();
-            } else {
-                play('wrong');
-                document.getElementById('result').innerHTML = '<span style="color:#e74c3c">Wrong!</span>';
-                updateAdaptiveData(q, timeTaken, false);
-                state.results.push({ q: q.q, a: q.a, uAns: val, correct: false, time: timeTaken });
-                elm.value = '';
-            }
+        // Handle ".5" vs "0.5" case: if value is < 1, allow length-1 if input starts with decimal
+        if (Math.abs(correct) < 1 && elm.value.startsWith('.')) targetLen--;
+
+        if (elm.value.length >= targetLen) {
+            handleWrong(elm, val, q);
+            return;
         }
+    }
+
+    function handleWrong(elm, val, q) {
+        play('wrong');
+        document.getElementById('result').innerHTML = '<span style="color:#e74c3c">Wrong!</span>';
+        updateAdaptiveData(q, (Date.now() - state.qStartTime) / 1000, false);
+        state.results.push({ q: q.q, a: q.a, uAns: val, correct: false, time: (Date.now() - state.qStartTime)/1000 });
+        elm.value = '';
     }
 
     function nextTurn() {
@@ -833,3 +842,4 @@
 </script>
 </body>
 </html>
+
