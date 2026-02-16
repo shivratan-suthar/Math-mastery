@@ -8,7 +8,7 @@
     <title>Math Mastery Pro - Adaptive Practice</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* MAIN LAYOUT FIXES */
+        /* MAIN LAYOUT */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             display: flex; 
@@ -40,6 +40,8 @@
         input[type="number"], input[type="text"] { padding: 12px; font-size: 28px; margin: 15px; border: 2px solid #bdc3c7; border-radius: 8px; width: 150px; text-align: center; background-color: #34495e; color: #ecf0f1; font-weight: bold; }
         input:focus { border-color: #1abc9c; outline: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* Force Range Inputs to Single Row Style */
         .range-input { width: 80px !important; padding: 8px !important; font-size: 20px !important; margin: 0 !important; }
 
         .chk-container { display: inline-block; background: rgba(0,0,0,0.1); padding: 10px 20px; border-radius: 8px; margin: 10px; cursor: pointer; }
@@ -58,7 +60,7 @@
             .tooltip-text::after { left: auto; right: 15px; }
         }
         
-        /* General UI */
+        /* General Stats & Game UI */
         #q-counter { font-size: 18px; color: #ecf0f1; margin-bottom: 5px; opacity: 0.8; }
         #step-indicator { font-size: 24px; color: #f1c40f; font-weight: bold; margin-bottom: 5px; height: 30px; }
         #question { font-size: 22px; font-weight: bold; margin: 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
@@ -240,6 +242,22 @@
         document.getElementById(`screen-${id}`).style.display = 'block';
     }
 
+    // Helper to generate the new single-row range input
+    function generateRangeRow(label, minId, maxId, minVal, maxVal, tooltip) {
+        return `
+        <div style="margin:10px 0; padding:10px; background:rgba(0,0,0,0.1); border-radius:10px;">
+            <div class="tooltip-wrapper" style="margin-bottom:5px;">
+                <label style="font-weight:bold; color:#1abc9c;">${label}</label>
+                <div class="info-icon">i</div><div class="tooltip-text">${tooltip}</div>
+            </div>
+            <div style="display:flex; justify-content:center; align-items:center; gap: 10px;">
+                <input type="number" id="${minId}" value="${minVal}" class="range-input"> 
+                <span style="font-weight:bold;">to</span> 
+                <input type="number" id="${maxId}" value="${maxVal}" class="range-input">
+            </div>
+        </div>`;
+    }
+
     function generateInput(id, label, val, tooltip) {
         return `
         <div style="margin:10px; display:inline-block;">
@@ -287,7 +305,6 @@
         const tipRange = "Min and Max numbers used for questions. (e.g. Min 2, Max 20).";
         const tipSeq = "All Values Mode: Ensures every number in your selected range appears at least once before repeating.";
 
-        // Special Inputs
         if (type === 'multiplication' || type === 'division') {
             let sym = (type === 'multiplication') ? '×' : '÷';
             let label1 = (type === 'multiplication') ? 'First Number' : 'First Number (Dividend)';
@@ -300,35 +317,11 @@
             let m2min = s.min2 || 2;
             let m2max = s.max2 || 10;
 
-            // Updated HTML to remove "Range" text and use flexbox for single-row alignment
             html += `<div style="background:rgba(0,0,0,0.1); padding:15px; border-radius:10px; margin-bottom:15px;">
                 <h3 style="margin-top:0; color:#1abc9c;">${(type === 'multiplication') ? 'Multiplication' : 'Division'} Ranges</h3>
-                
-                <div style="margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-                   <div class="tooltip-wrapper" style="margin-bottom:5px;">
-                        <label style="font-weight:bold; color:#1abc9c;">${label1}</label>
-                        <div class="info-icon">i</div><div class="tooltip-text">${tip1}</div>
-                   </div><br>
-                   <div style="display:flex; justify-content:center; align-items:center; gap: 10px; margin-top:5px;">
-                        <input type="number" id="min1" value="${m1min}" class="range-input"> 
-                        <span style="font-weight:bold;">to</span> 
-                        <input type="number" id="max1" value="${m1max}" class="range-input">
-                   </div>
-                </div>
-
+                ${generateRangeRow(label1, 'min1', 'max1', m1min, m1max, tip1)}
                 <div style="font-size:36px; color:#f1c40f; margin: 5px 0; font-weight:bold;">${sym}</div>
-
-                <div style="margin-top:10px;">
-                   <div class="tooltip-wrapper" style="margin-bottom:5px;">
-                        <label style="font-weight:bold; color:#1abc9c;">${label2}</label>
-                        <div class="info-icon">i</div><div class="tooltip-text">${tip2}</div>
-                   </div><br>
-                   <div style="display:flex; justify-content:center; align-items:center; gap: 10px; margin-top:5px;">
-                        <input type="number" id="min2" value="${m2min}" class="range-input"> 
-                        <span style="font-weight:bold;">to</span> 
-                        <input type="number" id="max2" value="${m2max}" class="range-input">
-                   </div>
-                </div>
+                ${generateRangeRow(label2, 'min2', 'max2', m2min, m2max, tip2)}
             </div>`;
             html += generateCheckbox('adaptable', 'Adaptable Mode', adaptDef, tipAdapt) + '<br>';
             html += generateInput('count', 'Questions', defCount, tipCount);
@@ -347,15 +340,13 @@
             html += generateInput('count', 'Questions', defCount, tipCount);
 
         } else if (type === 'tableSum') {
-            html += generateInput('min', 'Min Base', s.min||2, tipRange);
-            html += generateInput('max', 'Max Base', s.max||20, tipRange);
+            html += generateRangeRow('Base Number Range', 'min', 'max', s.min||2, s.max||20, tipRange);
             html += generateInput('count', 'No. of Tables', s.count||5, "How many full tables (10 steps each) to complete.");
             html += generateCheckbox('showSum', 'Show Running Total', s.showSum !== false, "Checked: Shows '12 + 6'. Unchecked: Shows '? + 6' (Memory).");
             html += generateCheckbox('allValues', 'Cover All Values', s.allValues, tipSeq) + '<br>';
         
         } else if (type === 'square') {
-            html += generateInput('min', 'Range Min', s.min||2, tipRange);
-            html += generateInput('max', 'Range Max', s.max||20, tipRange);
+            html += generateRangeRow('Number Range', 'min', 'max', s.min||2, s.max||20, tipRange);
             html += `<div style="margin:10px; display:inline-block;">
                 <div class="tooltip-wrapper"><label>Power:</label><div class="info-icon">i</div><div class="tooltip-text">Power 2 is Square (x²). Power 3 is Cube (x³).</div></div><br>
                 <select id="power" style="font-size:20px; padding:5px; margin-top:5px; width:100px;"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
@@ -365,9 +356,10 @@
             html += generateInput('count', 'Questions', defCount, tipCount);
 
         } else {
+            // Addition, Subtraction, Percentage
             html += generateCheckbox('adaptable', 'Adaptable Mode', adaptDef, tipAdapt) + '<br>';
-            html += generateInput('min', 'Range Min', s.min||2, tipRange);
-            html += generateInput('max', 'Range Max', s.max||20, tipRange);
+            html += generateRangeRow('Number Range', 'min', 'max', s.min||2, s.max||20, tipRange);
+            
             if(type === 'addition') html += generateInput('qty', 'Numbers Count', s.qty||2, "How many numbers to add (e.g. 3 numbers: 5 + 8 + 2).");
             if(type === 'percentage') html += `<div style="margin:10px; display:inline-block;"><label>Difficulty:</label><br><select id="diff" style="font-size:20px; padding:5px;"><option value="easy">Easy (5% steps)</option><option value="medium">Medium (1% steps)</option><option value="hard">Hard (decimal)</option></select></div>`;
             html += generateInput('count', 'Questions', defCount, tipCount);
