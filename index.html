@@ -41,7 +41,6 @@
         input:focus { border-color: #1abc9c; outline: none; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* Force Range Inputs to Single Row Style */
         .range-input { width: 80px !important; padding: 8px !important; font-size: 20px !important; margin: 0 !important; }
 
         .chk-container { display: inline-block; background: rgba(0,0,0,0.1); padding: 10px 20px; border-radius: 8px; margin: 10px; cursor: pointer; }
@@ -60,7 +59,7 @@
             .tooltip-text::after { left: auto; right: 15px; }
         }
         
-        /* General Stats & Game UI */
+        /* Stats & UI */
         #q-counter { font-size: 18px; color: #ecf0f1; margin-bottom: 5px; opacity: 0.8; }
         #step-indicator { font-size: 24px; color: #f1c40f; font-weight: bold; margin-bottom: 5px; height: 30px; }
         #question { font-size: 22px; font-weight: bold; margin: 10px 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
@@ -82,6 +81,27 @@
         .hist-title { font-size: 18px; font-weight: bold; color: #1abc9c; margin-bottom: 5px; }
         .hist-detail { font-size: 14px; color: #bdc3c7; }
         
+        /* New Settings Info Box in History Detail */
+        #hist-settings-box {
+            text-align: left;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #ecf0f1;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #hist-settings-box span {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 5px;
+            color: #bdc3c7;
+        }
+        #hist-settings-box b {
+            color: #1abc9c;
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; }
         th { color: #1abc9c; }
@@ -164,6 +184,9 @@
 
     <div id="screen-history-detail" style="display:none;">
         <h2 id="hist-detail-title">Mode Details</h2>
+        
+        <div id="hist-settings-box"></div>
+
         <p id="hist-detail-sub" style="color:#bdc3c7; font-size:14px; margin-bottom:20px;"></p>
         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; height: 300px; border: 1px solid rgba(255,255,255,0.1);"><canvas id="detailChart"></canvas></div>
         <br>
@@ -236,13 +259,42 @@
         saveWeights(w);
     }
 
+    // --- HELPER: NORMALIZE HISTORY SIGNATURE ---
+    // Fixes old games and ensures strict saving for new ones
+    function normalizeSig(rawSig) {
+        try {
+            let obj = JSON.parse(rawSig);
+            let s = obj.s;
+            let t = obj.t;
+            
+            // 1. Strict Rule: Remove 'allValues' from modes where it is NOT used
+            // Modes that use it: table, tableSum, square
+            const useAllValues = ['table', 'tableSum', 'square'];
+            if (!useAllValues.includes(t)) {
+                delete s.allValues; 
+            } else {
+                // If it IS used, ensure it exists for backward compatibility
+                if (s.allValues === undefined) s.allValues = false; 
+            }
+
+            // Defaults for older saves
+            if (s.adaptable === undefined) s.adaptable = true; 
+            if (s.qty === undefined && t === 'addition') s.qty = 2;
+            
+            // 2. Sort keys to ensure consistent signature
+            let sortedS = {};
+            Object.keys(s).sort().forEach(k => sortedS[k] = s[k]);
+            
+            return JSON.stringify({t: t, s: sortedS});
+        } catch(e) { return rawSig; }
+    }
+
     // --- UI HELPERS ---
     function showScreen(id) {
         document.querySelectorAll('#game-container > div').forEach(d => d.style.display = 'none');
         document.getElementById(`screen-${id}`).style.display = 'block';
     }
 
-    // Helper to generate the new single-row range input
     function generateRangeRow(label, minId, maxId, minVal, maxVal, tooltip) {
         return `
         <div style="margin:10px 0; padding:10px; background:rgba(0,0,0,0.1); border-radius:10px;">
@@ -356,7 +408,6 @@
             html += generateInput('count', 'Questions', defCount, tipCount);
 
         } else {
-            // Addition, Subtraction, Percentage
             html += generateCheckbox('adaptable', 'Adaptable Mode', adaptDef, tipAdapt) + '<br>';
             html += generateRangeRow('Number Range', 'min', 'max', s.min||2, s.max||20, tipRange);
             
@@ -487,7 +538,11 @@
 
         s.count = getVal('count');
         s.adaptable = getChk('adaptable');
-        s.allValues = getChk('allValues');
+        
+        // Strict: Only read allValues if game supports it
+        if(['table', 'tableSum', 'square'].includes(state.gameType)) {
+            s.allValues = getChk('allValues');
+        }
 
         if (state.gameType === 'multiplication' || state.gameType === 'division') {
             s.min1 = getVal('min1'); s.max1 = getVal('max1');
@@ -627,7 +682,7 @@
         history.push(entry);
         localStorage.setItem('mathHistory_v3', JSON.stringify(history));
 
-        let historyData = history.filter(h => h.sig === sig).sort((a,b) => a.date - b.date);
+        let historyData = history.filter(h => normalizeSig(h.sig) === normalizeSig(sig)).sort((a,b) => a.date - b.date);
         renderHistoryChart(historyData);
         
         let leaderboard = [...historyData].sort((a,b) => a.time - b.time).slice(0,5);
@@ -687,8 +742,21 @@
         
         let groups = {};
         history.forEach(h => {
-            if(!groups[h.sig]) groups[h.sig] = { sig: h.sig, data: JSON.parse(h.sig), count: 0, lastPlayed: 0, bestTime: Infinity };
-            let g = groups[h.sig]; g.count++;
+            let groupKey = normalizeSig(h.sig);
+            
+            if(!groups[groupKey]) {
+                let parts = JSON.parse(groupKey);
+                groups[groupKey] = { 
+                    sig: groupKey, 
+                    rawSig: h.sig,
+                    data: parts, 
+                    count: 0, 
+                    lastPlayed: 0, 
+                    bestTime: Infinity 
+                };
+            }
+            let g = groups[groupKey];
+            g.count++;
             if(h.date > g.lastPlayed) g.lastPlayed = h.date;
             if(h.time < g.bestTime) g.bestTime = h.time;
         });
@@ -701,6 +769,8 @@
             else if(t === 'multiplication' || t === 'division') desc += ` (Custom Ranges)`; 
             else desc += ` (Min: ${s.min}, Max: ${s.max})`;
             
+            if(s.allValues) desc += " [All Values]";
+
             let el = document.createElement('div'); el.className = 'history-item';
             el.innerHTML = `<div class="hist-title">${desc}</div><div class="hist-detail">Played: ${g.count} times | Best: ${g.bestTime.toFixed(1)}s</div>`;
             el.onclick = () => showHistoryDetail(g.sig, desc);
@@ -712,9 +782,30 @@
     function showHistoryDetail(sig, title) {
         play('click');
         const history = JSON.parse(localStorage.getItem('mathHistory_v3') || '[]');
-        const filtered = history.filter(h => h.sig === sig).sort((a,b) => a.date - b.date);
+        const targetSig = normalizeSig(sig);
+        const filtered = history.filter(h => normalizeSig(h.sig) === targetSig).sort((a,b) => a.date - b.date);
+        
         document.getElementById('hist-detail-title').innerText = title;
         document.getElementById('hist-detail-sub').innerText = `Total Games: ${filtered.length}`;
+        
+        // --- NEW: DISPLAY SETTINGS BOX ---
+        // We parse the normalized sig to get the clean settings
+        let settingsObj = JSON.parse(targetSig).s;
+        let boxHtml = `<div style="margin-bottom:10px; font-weight:bold; color:#f1c40f;">Configuration Details:</div>`;
+        
+        // Helper to format keys like "min1" to "Min 1" or "showSum" to "Show Sum"
+        const formatKey = (k) => k.replace(/([A-Z0-9])/g, ' $1').replace(/^./, str => str.toUpperCase());
+
+        for (let key in settingsObj) {
+            let val = settingsObj[key];
+            if (val === true) val = "Yes";
+            if (val === false) val = "No";
+            if (key === 'ranges') val = val.join(', '); // Handle array
+            
+            boxHtml += `<span><b>${formatKey(key)}:</b> ${val}</span>`;
+        }
+        document.getElementById('hist-settings-box').innerHTML = boxHtml;
+
         showScreen('history-detail');
         const ctx = document.getElementById('detailChart').getContext('2d');
         if(detailChartInstance) detailChartInstance.destroy();
@@ -738,4 +829,3 @@
 </script>
 </body>
 </html>
-
